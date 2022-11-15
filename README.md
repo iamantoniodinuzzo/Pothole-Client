@@ -33,9 +33,9 @@
     <br />
     <a href="https://github.com/Indisparte/Pothole-Client">View Demo</a>
     ·
-    <a href="https://github.com/Indisparte/repo_name/issues">Report Bug</a>
+    <a href="https://github.com/Indisparte/Pothole-Client/issues">Report Bug</a>
     ·
-    <a href="https://github.com/Indisparte/repo_name/issues">Request Feature</a>
+    <a href="https://github.com/Indisparte/Pothole-Client/issues">Request Feature</a>
   </p>
 </div>
 
@@ -95,27 +95,10 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/github_username/repo_name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -140,7 +123,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [ ] Feature 3
     - [ ] Nested Feature
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues][issues-url] for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -185,16 +168,16 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Indisparte/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/Indisparte/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Indisparte/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/Indisparte/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/Indisparte/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/Indisparte/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Indisparte/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/Indisparte/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/Indisparte/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/Indisparte/repo_name/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/Indisparte/Pothole-Client.svg?style=for-the-badge
+[contributors-url]: https://github.com/Indisparte/Pothole-Client/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Indisparte/Pothole-Client.svg?style=for-the-badge
+[forks-url]: https://github.com/Indisparte/Pothole-Client/network/members
+[stars-shield]: https://img.shields.io/github/stars/Indisparte/Pothole-Client.svg?style=for-the-badge
+[stars-url]: https://github.com/Indisparte/Pothole-Client/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Indisparte/Pothole-Client.svg?style=for-the-badge
+[issues-url]: https://github.com/Indisparte/Pothole-Client/issues
+[license-shield]: https://img.shields.io/github/license/Indisparte/Pothole-Client.svg?style=for-the-badge
+[license-url]: https://github.com/Indisparte/Pothole-Client/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/iamantoniodinuzzo
 [product-screenshot]: images/screenshot.png
