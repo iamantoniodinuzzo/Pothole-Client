@@ -19,19 +19,19 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Indisparte/repo_name">
+  <a href="https://github.com/Indisparte/Pothole-Client">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">project_title</h3>
+<h3 align="center">Pothole</h3>
 
   <p align="center">
     project_description
     <br />
-    <a href="https://github.com/Indisparte/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/Indisparte/Pothole-Client"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Indisparte/repo_name">View Demo</a>
+    <a href="https://github.com/Indisparte/Pothole-Client">View Demo</a>
     ·
     <a href="https://github.com/Indisparte/repo_name/issues">Report Bug</a>
     ·
