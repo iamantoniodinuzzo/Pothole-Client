@@ -1,12 +1,13 @@
 package com.indisparte.pothole.view.home;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.indisparte.pothole.model.Filter;
 import com.indisparte.pothole.model.Pothole;
 import com.indisparte.pothole.repository.PotholeRepository;
-import com.indisparte.pothole.service.PotholeSensorListener;
 
 import java.util.List;
 
@@ -32,15 +33,13 @@ public class HomeViewModel extends ViewModel {
         return potholes;
     }
 
-    public LiveData<List<Pothole>> getFilteredPotholes() {
+    public LiveData<List<Pothole>> getFilteredPotholes(@NonNull Filter filter) {
         if (filteredPotholes == null) {
             filteredPotholes = new MutableLiveData<>();
-            getPotholesByFilter();
+            getPotholesByFilter(filter);
         }
         return filteredPotholes;
     }
-
-
 
 
     // Handle business logic
@@ -50,7 +49,7 @@ public class HomeViewModel extends ViewModel {
     }
 
     // Handle business logic
-    private void getPotholesByFilter() {
-        // Do an asynchronous operation to fetch potholes by radius.
+    private void getPotholesByFilter(Filter filter) {
+        // Do an asynchronous operation to fetch potholes by filter.
     }
 }
