@@ -18,18 +18,18 @@ import com.indisparte.pothole.PotholeApplication;
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
-public class PotholeSensorListener extends Service implements SensorEventListener {
+public class PotholeRecognizerService extends Service implements SensorEventListener {
     public static final int MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION = 2;
     private static final double ACCELERATION_THRESHOLD = 25.000;//TODO should be customizable
     private static final double GRAVITY = 9.18;
-    private static final String POTHOLE_SERVICE_NAME = PotholeSensorListener.class.getName();
+    private static final String POTHOLE_SERVICE_NAME = PotholeRecognizerService.class.getName();
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gravity;
     private double x_accel, y_accel, z_accel, x_gravity, y_gravity, z_gravity;
     private long lastEvent = System.currentTimeMillis();
 
-    private PotholeSensorListener() {
+    private PotholeRecognizerService() {
     }
 
     @Nullable

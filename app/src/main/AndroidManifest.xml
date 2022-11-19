@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Pothole"
         tools:targetApi="31">
         <service
-            android:name=".service.PotholeSensorListener"
+            android:name=".service.PotholeRecognizerService"
             android:enabled="true"
             android:exported="false" />
         <activity
