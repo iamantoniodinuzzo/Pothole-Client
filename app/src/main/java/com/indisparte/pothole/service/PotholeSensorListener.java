@@ -1,27 +1,39 @@
-package com.indisparte.pothole.util;
+package com.indisparte.pothole.service;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.indisparte.pothole.PotholeApplication;
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
-public class PotholeSensorListener implements SensorEventListener {
+public class PotholeSensorListener extends Service implements SensorEventListener {
     private static PotholeSensorListener instance;
     private SensorManager sensorManager;
     private Sensor sensor;
     private static final double ACCELERATION_THRESHOLD = 25.000;//TODO should be customizable
+    private final String POTHOLE_SERVICE_NAME = PotholeSensorListener.class.getName();
     private float previous_z_acceleration;
     private boolean initialized;
 
     private PotholeSensorListener() {
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public static PotholeSensorListener getInstance() {
