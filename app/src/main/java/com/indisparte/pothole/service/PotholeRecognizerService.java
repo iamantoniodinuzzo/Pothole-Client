@@ -22,14 +22,14 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     public static final int MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION = 2;
     private static final double ACCELERATION_THRESHOLD = 25.000;//TODO should be customizable
     private static final double GRAVITY = 9.18;
-    private static final String POTHOLE_SERVICE_NAME = PotholeRecognizerService.class.getName();
+    private static final String TAG = PotholeRecognizerService.class.getSimpleName();
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gravity;
     private double x_accel, y_accel, z_accel, x_gravity, y_gravity, z_gravity;
     private long lastEvent = System.currentTimeMillis();
 
-    private PotholeRecognizerService() {
+    public PotholeRecognizerService() {
     }
 
     @Nullable
@@ -42,7 +42,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         try {
-            Log.d(POTHOLE_SERVICE_NAME, "Service started!");
+            Log.d(TAG, "Service started!");
 
             initSensors();
 
@@ -59,7 +59,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
             );
 
         } catch (Exception e) {
-            Log.e(POTHOLE_SERVICE_NAME, "PotholeSensorListener start: Exception->" + e.getMessage());
+            Log.e(TAG, "PotholeSensorListener start: Exception->" + e.getMessage());
             e.printStackTrace();
         }
 
@@ -69,9 +69,9 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     private void registerSensor(Sensor sensor, String success_message, String error_message) {
         if (sensor != null) {
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(POTHOLE_SERVICE_NAME, success_message);
+            Log.d(TAG, success_message);
         } else {
-            Log.d(POTHOLE_SERVICE_NAME, error_message);
+            Log.d(TAG, error_message);
             Toast.makeText(PotholeApplication.appContext, error_message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -98,7 +98,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     }
 
     private void unregisterSensor() {
-        Log.d(POTHOLE_SERVICE_NAME, "Service stopped!");
+        Log.d(TAG, "Service stopped!");
         sensorManager.unregisterListener(this, accelerometer);
         sensorManager.unregisterListener(this, gravity);
     }
@@ -113,7 +113,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
         double deltaZ = Math.abs(getVerticalAccel());
 
         if (deltaZ > ACCELERATION_THRESHOLD) {
-            // If not Access fine location permission, return
+            // TODO If not Access fine location permission, return
 
             /*
             This block checks if at least MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION
@@ -130,7 +130,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
 
             //TODO send pothole to server
 
-            Log.d(PotholeApplication.LOG_TAG, "onSensorChanged: deltaZ-> " + deltaZ);
+            Log.d(TAG, "onSensorChanged: deltaZ-> " + deltaZ);
             Toast.makeText(PotholeApplication.appContext, "Pothole found!", Toast.LENGTH_SHORT).show();
         }
     }

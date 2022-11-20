@@ -19,11 +19,11 @@ public class HomeViewModel extends ViewModel {
 
     // Expose screen UI state
     private MutableLiveData<List<Pothole>> potholes, filteredPotholes;
-    private MutableLiveData<Boolean> isServiceRunning;
 
     public HomeViewModel() {
         repository = PotholeRepository.getInstance();
     }
+
 
     public LiveData<List<Pothole>> getPotholes() {
         if (potholes == null) {
@@ -40,7 +40,6 @@ public class HomeViewModel extends ViewModel {
         }
         return filteredPotholes;
     }
-
 
     // Handle business logic
     private void getAllPotholes() {
