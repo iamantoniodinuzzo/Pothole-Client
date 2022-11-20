@@ -2,6 +2,11 @@ plugins {
     id 'com.android.application'
 }
 
+
+def serverPropertiesFile = rootProject.file("local.properties")
+def serverProperties = new Properties()
+serverProperties.load(new FileInputStream(serverPropertiesFile))
+
 android {
     namespace 'com.indisparte.pothole'
     compileSdk 33
@@ -12,6 +17,10 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+
+        // should correspond to key/value pairs inside the file
+        buildConfigField("String", "SERVER_ADDRESS", serverProperties['SERVER_ADDRESS'])
+        buildConfigField("String", "SERVER_PORT", serverProperties['SERVER_PORT'])
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
