@@ -10,7 +10,38 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".ui.MapsFragment" />
 
+        <SeekBar
+            android:id="@+id/radius_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="500"
+            android:min="100"
+            android:progress="100"
+            android:progressTint="@color/purple_500"
+            android:thumb="@drawable/ic_range"
+            android:thumbTint="@color/purple_700" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/findMe_btn"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="Find me"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_placeholder"
+            app:iconTint="@color/purple_700" />
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleButton"
             android:layout_width="wrap_content"

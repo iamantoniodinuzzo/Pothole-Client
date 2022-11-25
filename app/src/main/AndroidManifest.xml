@@ -4,7 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:name=".PotholeApplication"
         android:allowBackup="true"
@@ -16,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pothole"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC0Dvvh_I6fJNgScENGovW234sPayGJ03c" />
         <service
             android:name=".service.PotholeRecognizerService"
             android:enabled="true"
