@@ -40,11 +40,11 @@
         app:key="app_category"
         app:title="App">
         <SwitchPreferenceCompat
+            app:defaultValue="false"
             app:iconSpaceReserved="true"
             app:key="dark_mode"
             app:summaryOff="Light mode enabled"
             app:summaryOn="Dark mode enabled"
-            app:defaultValue="false"
             app:title="Dark mode" />
     </PreferenceCategory>
 

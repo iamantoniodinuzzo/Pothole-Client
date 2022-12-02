@@ -37,7 +37,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
+import com.indisparte.pothole.R;
 import com.indisparte.pothole.databinding.FragmentMapsBinding;
+import com.indisparte.pothole.service.LocationTrackingService;
 import com.indisparte.pothole.util.Mode;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 

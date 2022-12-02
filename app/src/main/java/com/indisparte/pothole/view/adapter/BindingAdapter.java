@@ -7,6 +7,9 @@ import android.widget.ProgressBar;
 import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.appcompat.widget.Toolbar;
 
+import com.indisparte.pothole.util.DotProgressView;
+import com.indisparte.pothole.util.Mode;
+
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
