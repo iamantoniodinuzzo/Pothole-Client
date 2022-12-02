@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.indisparte.pothole.view.home.HomeFragment"
+        android:name="com.indisparte.pothole.view.HomeFragment"
         android:label="HomeFragment"
         tools:layout="@layout/fragment_home" />
 </navigation>
