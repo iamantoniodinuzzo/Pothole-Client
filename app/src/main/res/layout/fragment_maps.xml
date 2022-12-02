@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="permissions"
+            type="Boolean" />
+
+        <variable
+            name="mode"
+            type="com.indisparte.pothole.util.Mode" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".ui.MapsFragment" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            app:permission="@{permissions}" />
+
+        <androidx.appcompat.widget.AppCompatToggleButton
+            android:id="@+id/tracking_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/custom_toggle"
+            android:contentDescription="Tracking my position"
+            android:drawableStart="@drawable/ic_car"
+            android:drawablePadding="10dp"
+            android:hapticFeedbackEnabled="true"
+            android:padding="10dp"
+            android:textAllCaps="false"
+            android:textColor="?attr/colorOnSecondary"
+            android:textOff="Start tracking"
+            android:textOn="Stop tracking"
+            android:textSize="18sp"
+            android:tooltipText="Tracking your position"
+            app:permission="@{permissions}" />
+
+        <ImageButton
+            android:id="@+id/locate_me"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/custom_button"
+            android:contentDescription="Get my location"
+            android:hapticFeedbackEnabled="true"
+            android:src="@drawable/ic_placeholder"
+            android:tooltipText="Find me"
+            app:mode="@{mode}"
+            app:permission="@{permissions}"
+            app:tint="?attr/colorOnSecondary" />
+
+    </RelativeLayout>
+</layout>

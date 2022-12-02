@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">Pothole</string>
+    <!--    Zoom map type -->
+    <string-array name="zoom_array">
+        <item>Building</item>
+        <item>Street</item>
+        <item>City</item>
+        <item>Continent</item>
+        <item>World</item>
+    </string-array>
+    <string-array name="zoom_values_array" translatable="false">
+        <item>20f</item>
+        <item>15f</item>
+        <item>10f</item>
+        <item>5f</item>
+        <item>2f</item>
+    </string-array>
+
+    <!--    Map type-->
+    <string-array name="map_name_array">
+        <item>Normal</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+        <item>Hybrid</item>
+    </string-array>
+    <string-array name="map_type_value_array" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
 </resources>
