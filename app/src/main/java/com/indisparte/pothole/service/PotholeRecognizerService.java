@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.indisparte.pothole.PotholeApplication;
+import com.indisparte.pothole.di.component.PotholeApplication;
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
@@ -72,12 +72,12 @@ public class PotholeRecognizerService extends Service implements SensorEventList
             Log.d(TAG, success_message);
         } else {
             Log.d(TAG, error_message);
-            Toast.makeText(PotholeApplication.appContext, error_message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(PotholeApplication.getContext(), error_message, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void initSensors() {
-        sensorManager = (SensorManager) PotholeApplication.appContext.getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) PotholeApplication.getContext().getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
     }
@@ -131,7 +131,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
             //TODO send pothole to server
 
             Log.d(TAG, "onSensorChanged: deltaZ-> " + deltaZ);
-            Toast.makeText(PotholeApplication.appContext, "Pothole found!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(PotholeApplication.getContext(), "Pothole found!", Toast.LENGTH_SHORT).show();
         }
     }
 

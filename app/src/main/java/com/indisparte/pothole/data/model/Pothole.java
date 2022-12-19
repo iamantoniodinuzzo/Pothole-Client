@@ -1,4 +1,4 @@
-package com.indisparte.pothole.model;
+package com.indisparte.pothole.data.model;
 
 import androidx.annotation.NonNull;
 
@@ -19,7 +19,7 @@ public class Pothole {
         this.lon = lon;
         this.var = var;
     }
-    
+
     public Double getLat() {
         return lat;
     }
