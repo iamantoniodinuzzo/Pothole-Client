@@ -2,34 +2,48 @@ package com.indisparte.pothole.model;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
 public class Pothole {
-    private final LatLng latLng;
-    private final Double variation;
+    private final String user;
+    private final Double lat, lon, var;
 
-    public Pothole(@NonNull LatLng latLng, @NonNull Double variation) {
-        this.latLng = latLng;
-        this.variation = variation;
+    public Pothole(@NonNull String user,
+                   @NonNull Double lat,
+                   @NonNull Double lon,
+                   @NonNull Double var
+    ) {
+        this.user = user;
+        this.lat = lat;
+        this.lon = lon;
+        this.var = var;
+    }
+    
+    public Double getLat() {
+        return lat;
     }
 
-    public LatLng getLatLng() {
-        return latLng;
+    public Double getLon() {
+        return lon;
     }
 
-    public double getVariation() {
-        return variation;
+    public Double getVar() {
+        return var;
+    }
+
+    public String getUser() {
+        return user;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "Pothole{" +
-                "latLng=" + latLng +
-                ", variation=" + variation +
+                "user='" + user + '\'' +
+                ", latitude=" + lat +
+                ", longitude=" + lon +
+                ", variation=" + var +
                 '}';
     }
 }
