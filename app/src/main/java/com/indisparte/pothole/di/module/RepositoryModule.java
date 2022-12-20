@@ -1,6 +1,7 @@
 package com.indisparte.pothole.di.module;
 
-import com.indisparte.pothole.data.network.network.PotholeRepository;
+
+import com.indisparte.pothole.data.network.PotholeRepository;
 
 import javax.inject.Singleton;
 
