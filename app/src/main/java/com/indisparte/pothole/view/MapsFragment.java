@@ -1,6 +1,14 @@
 package com.indisparte.pothole.view;
 
-import static com.indisparte.pothole.util.Constant.*;
+import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
+import static com.indisparte.pothole.util.Constant.ACTION_START_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.ACTION_STOP_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.DEFAULT_CAMERA_ZOOM;
+import static com.indisparte.pothole.util.Constant.DEFAULT_RANGE;
+import static com.indisparte.pothole.util.Constant.EXTRA_LOCATION;
+import static com.indisparte.pothole.util.Constant.MAP_TYPE_PREFERENCE_KEY;
+import static com.indisparte.pothole.util.Constant.PRECISION_RANGE_KEY;
+import static com.indisparte.pothole.util.Constant.ZOOM_PREFERENCE_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -24,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,6 +50,7 @@ import com.indisparte.pothole.R;
 import com.indisparte.pothole.databinding.FragmentMapsBinding;
 import com.indisparte.pothole.service.LocationTrackingService;
 import com.indisparte.pothole.util.Mode;
+import com.indisparte.pothole.util.UserPreferenceManager;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 
 
@@ -65,6 +75,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: init sharedViewModel, myReceiver and preferences");
+        checkIfUserAlreadyHaveUsername();
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         locationReceiver = new LocationReceiver();
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
@@ -85,6 +96,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadSettings();
+
 
         sharedViewModel.getIsPermissionGranted().observe(getViewLifecycleOwner(), areGranted -> {
             binding.setPermissions(areGranted);
@@ -116,6 +128,19 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 getLocation();
             }
         });
+    }
+
+
+    private void checkIfUserAlreadyHaveUsername() {
+        // check if user have the username saved in the preferences, if not, user need to insert one
+        if (!UserPreferenceManager.userHasUsernameSet()) {
+            Log.d(TAG, "checkIfUserAlreadyHaveUsername: User already have an username, so login");
+            // login to the server
+            requireActivity()
+                    .runOnUiThread(() -> NavHostFragment
+                            .findNavController(this)
+                            .navigate(R.id.action_global_loginFragment));
+        }
     }
 
     private void loadSettings() {
@@ -342,4 +367,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         }
     }
+
+
 }

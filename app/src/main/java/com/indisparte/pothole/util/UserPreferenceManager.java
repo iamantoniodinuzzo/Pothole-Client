@@ -24,7 +24,7 @@ public class UserPreferenceManager {
                 .getSharedPreferences(USERNAME_PREF_KEY, Context.MODE_PRIVATE);
     }
 
-    public static UserPreferenceManager getInstance() {
+    private static UserPreferenceManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new UserPreferenceManager();
         }
@@ -33,6 +33,10 @@ public class UserPreferenceManager {
 
     public static String getUserName() {
         return UserPreferenceManager.getInstance().mPreferenceManager.getString(KEY, null);
+    }
+
+    public static boolean userHasUsernameSet() {
+        return getUserName() != null;
     }
 
     public static void saveUsername(@NonNull String username) {

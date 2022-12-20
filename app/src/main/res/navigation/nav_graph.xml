@@ -10,9 +10,22 @@
         android:id="@+id/mapsFragment"
         android:name="com.indisparte.pothole.view.MapsFragment"
         android:label="Map"
-        tools:layout="@layout/fragment_maps" />
+        tools:layout="@layout/fragment_maps" >
+        <action
+            android:id="@+id/action_mapsFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
-        android:id="@+id/settingsFragment2"
+        android:id="@+id/settingsFragment"
         android:name="com.indisparte.pothole.view.SettingsFragment"
         android:label="Settings" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.indisparte.pothole.view.login.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
+    </fragment>
 </navigation>

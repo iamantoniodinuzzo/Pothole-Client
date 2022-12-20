@@ -9,7 +9,6 @@ import com.indisparte.pothole.BuildConfig;
 import com.indisparte.pothole.data.model.Pothole;
 import com.indisparte.pothole.util.ServerCommand;
 import com.indisparte.pothole.util.ServerCommand.CommandType;
-import com.indisparte.pothole.util.UserPreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,13 +34,11 @@ public class TcpClient {
     private static final String HOST_NAME = BuildConfig.SERVER_ADDRESS;
     private static final int HOST_PORT = Integer.parseInt(BuildConfig.SERVER_PORT);
     private Socket mSocket;
-    private UserPreferenceManager preferenceManager;
     private BufferedReader mReader;
     private OutputStream mStream;
 
 
     private TcpClient() {
-        preferenceManager = UserPreferenceManager.getInstance();
     }
 
     public static TcpClient getInstance() {

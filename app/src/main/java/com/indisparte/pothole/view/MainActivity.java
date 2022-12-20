@@ -1,6 +1,9 @@
 package com.indisparte.pothole.view;
 
-import static com.indisparte.pothole.util.Constant.*;
+import static com.indisparte.pothole.util.Constant.DARK_MODE_PRECISION_KEY;
+import static com.indisparte.pothole.util.Constant.LOCATION_REQUEST_CODE;
+import static com.indisparte.pothole.util.Constant.permissions;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,11 +21,16 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.indisparte.pothole.R;
+import com.indisparte.pothole.data.network.PotholeRepository;
 import com.indisparte.pothole.databinding.ActivityMainBinding;
 import com.indisparte.pothole.util.PermissionUtil;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 
+import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -31,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private SharedViewModel sharedViewModel;
     private NavController navController;
     private SharedPreferences preferences;
-
+    @Inject
+    protected PotholeRepository mPotholeRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         NavigationUI.setupActionBarWithNavController(this, navController);
 
+
     }
+
 
     private void loadSettings() {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);

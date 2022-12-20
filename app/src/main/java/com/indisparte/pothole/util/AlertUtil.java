@@ -4,14 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.indisparte.pothole.R;
-import com.indisparte.pothole.di.component.PotholeApplication;
 
 /**
  * Display custom alert dialog
@@ -53,16 +52,19 @@ public class AlertUtil {
      * @param cancelButtonOnClickListener l'azione da svolgere al click del negative button
      * @return
      */
-    public static Dialog createSimpleOkCancelDialog(@NonNull String message,
+    public static Dialog createSimpleOkCancelDialog(@NonNull Context context,
+                                                    @NonNull String message,
                                                     @NonNull String positive_text_btn,
-                                                    @Nullable String negative_text_btn,
-                                                    @Nullable DialogInterface.OnClickListener positiveButtonClickListener,
-                                                    @Nullable DialogInterface.OnClickListener cancelButtonOnClickListener) {
-        final MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(PotholeApplication.getContext())
+                                                    String negative_text_btn,
+                                                    @NonNull DialogInterface.OnClickListener positiveButtonClickListener,
+                                                    DialogInterface.OnClickListener cancelButtonOnClickListener) {
+        final MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(context)
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(positive_text_btn, positiveButtonClickListener)
-                .setNegativeButton(negative_text_btn, cancelButtonOnClickListener);
+                .setPositiveButton(positive_text_btn, positiveButtonClickListener);
+        if (negative_text_btn != null && cancelButtonOnClickListener != null)
+            alertDialog.setNegativeButton(negative_text_btn, cancelButtonOnClickListener);
+
         return alertDialog.create();
     }
 
@@ -75,14 +77,11 @@ public class AlertUtil {
      * @param positiveButtonClickListener l'azione da eseguire alla pressione del button
      * @return progressDialog
      */
-    public static ProgressDialog createProgressDialog(@NonNull String message,
-                                                      @NonNull String positive_btn_msg,
-                                                      @Nullable DialogInterface.OnClickListener positiveButtonClickListener) {
-        final ProgressDialog progressDialog = new ProgressDialog(PotholeApplication.getContext());
+    public static ProgressDialog createProgressDialog(@NonNull Context context,
+                                                      @NonNull String message) {
+        final ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(message);
         progressDialog.setCancelable(false);
-        progressDialog.setButton(ProgressDialog.BUTTON_POSITIVE,
-                positive_btn_msg, positiveButtonClickListener);
         return progressDialog;
     }
 

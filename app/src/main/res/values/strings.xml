@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Pothole</string>
+    <string name="dialog_connection_server_msg">Connecting with server</string>
+    <string name="dialog_error_connection_server_msg">No connection with the server</string>
+    <string name="dialog_error_connection_server_pos_btn">Retry</string>
+    <string name="dialog_error_connection_server_neg_btn">Close</string>
+    <string name="dialog_progress_login_msg">Try to login</string>
     <!--    Zoom map type -->
     <string-array name="zoom_array">
         <item>Building</item>

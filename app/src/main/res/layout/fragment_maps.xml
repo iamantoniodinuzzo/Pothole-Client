@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -60,11 +61,11 @@
             android:id="@+id/locate_me"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
+            android:layout_alignParentTop="true"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/custom_button"
+            android:background="@drawable/custom_circular_button"
             android:contentDescription="Get my location"
             android:hapticFeedbackEnabled="true"
             android:src="@drawable/ic_placeholder"
