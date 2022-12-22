@@ -28,6 +28,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            app:titleTextColor="?attr/colorOnPrimary"
             android:background="?attr/colorPrimary"
             app:menu="@menu/main_menu"
             app:mode="@{mode}">
@@ -75,7 +76,7 @@
             android:hapticFeedbackEnabled="true"
             android:padding="10dp"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="?attr/colorOnPrimary"
             android:textOff="Start tracking"
             android:textOn="Stop tracking"
             android:textSize="18sp"
@@ -97,7 +98,7 @@
             android:tooltipText="Find me"
             app:mode="@{mode}"
             app:permission="@{permissions}"
-            app:tint="?attr/colorOnSecondary" />
+            app:tint="?attr/colorOnPrimary" />
 
     </RelativeLayout>
 </layout>
