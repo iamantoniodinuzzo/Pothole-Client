@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -96,7 +97,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mToolbar = binding.toolbar;
 
         initMap();
-       // ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
         setHasOptionsMenu(true);
         return binding.getRoot();
     }
@@ -149,16 +150,16 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 mToolbar, mNavController, appBarConfiguration);
     }
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return NavigationUI.onNavDestinationSelected(item, mNavController)
                 || super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main_menu, menu);
     }
-
 
     private void loadSettings() {
         String zoom_string_value = preferences.getString(ZOOM_PREFERENCE_KEY, DEFAULT_CAMERA_ZOOM);//default street level

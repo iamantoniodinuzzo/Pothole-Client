@@ -6,8 +6,17 @@ import static com.indisparte.pothole.util.Constant.ZOOM_PREFERENCE_KEY;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
@@ -19,8 +28,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String TAG = SettingsFragment.class.getSimpleName();
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupToolbar(view);
+    }
+
+    private void setupToolbar(@NonNull View view) {
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
+        NavController navController = Navigation.findNavController(view);
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(R.id.mapsFragment).build();
+        NavigationUI.setupWithNavController(
+                toolbar, navController, appBarConfiguration);
+    }
+
+    @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
+
         SeekBarPreference precision_range = findPreference(PRECISION_RANGE_KEY);
         if (precision_range != null) {
             precision_range.setOnPreferenceChangeListener((preference, newValue) -> {
