@@ -1,6 +1,14 @@
 package com.indisparte.pothole.view;
 
-import static com.indisparte.pothole.util.Constant.*;
+import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
+import static com.indisparte.pothole.util.Constant.ACTION_START_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.ACTION_STOP_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.DEFAULT_CAMERA_ZOOM;
+import static com.indisparte.pothole.util.Constant.DEFAULT_RANGE;
+import static com.indisparte.pothole.util.Constant.EXTRA_LOCATION;
+import static com.indisparte.pothole.util.Constant.MAP_TYPE_PREFERENCE_KEY;
+import static com.indisparte.pothole.util.Constant.PRECISION_RANGE_KEY;
+import static com.indisparte.pothole.util.Constant.ZOOM_PREFERENCE_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -15,15 +23,24 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -57,6 +74,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Circle userLocationAccuracyCircle;
     private SharedPreferences preferences;
     private float zoom;
+    private NavController mNavController;
+    private Toolbar mToolbar;
     private int radius, mapType;
     private CircleOptions circleOptions;
     private SupportMapFragment mapFragment;
@@ -75,16 +94,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                              ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-        initMap();
+        mToolbar = binding.toolbar;
 
-        return view;
+        initMap();
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
+        setHasOptionsMenu(true);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupToolbar(view);
         loadSettings();
+
+        sharedViewModel.getAppMode().observe(getViewLifecycleOwner(), mode -> binding.setMode(mode));
 
         sharedViewModel.getIsPermissionGranted().observe(getViewLifecycleOwner(), areGranted -> {
             binding.setPermissions(areGranted);
@@ -116,6 +140,25 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 getLocation();
             }
         });
+    }
+
+    private void setupToolbar(@NonNull View view) {
+        mNavController = Navigation.findNavController(view);
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(R.id.settingsFragment, R.id.mapsFragment).build();
+        NavigationUI.setupWithNavController(
+                mToolbar, mNavController, appBarConfiguration);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return NavigationUI.onNavDestinationSelected(item, mNavController)
+                || super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.main_menu, menu);
     }
 
     private void loadSettings() {
@@ -342,4 +385,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         }
     }
+
+
 }

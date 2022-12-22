@@ -5,13 +5,13 @@
             <corners android:radius="10dp" />
             <stroke
                 android:width="6dp"
-                android:color="?attr/colorSecondary" />
+                android:color="#D6E4E5" />
         </shape>
     </item>
     <item android:bottom="6dp">
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="?attr/colorPrimary" />
+            <solid android:color="#EFF5F5" />
         </shape>
     </item>
 </layer-list>

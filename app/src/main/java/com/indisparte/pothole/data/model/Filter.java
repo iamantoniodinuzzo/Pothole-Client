@@ -1,4 +1,4 @@
-package com.indisparte.pothole.model;
+package com.indisparte.pothole.data.model;
 
 import androidx.annotation.NonNull;
 
