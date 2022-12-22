@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,14 +15,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
-import com.indisparte.pothole.R;
 import com.indisparte.pothole.data.network.PotholeRepository;
 import com.indisparte.pothole.databinding.ActivityMainBinding;
 import com.indisparte.pothole.util.PermissionUtil;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
+
+import java.io.IOException;
 
 import javax.inject.Inject;
 
@@ -39,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedViewModel sharedViewModel;
     private NavController navController;
     private SharedPreferences preferences;
+    private long pressedTime;
     @Inject
     protected PotholeRepository mPotholeRepository;
 
@@ -51,16 +49,6 @@ public class MainActivity extends AppCompatActivity {
         loadSettings();
         permissionUtil = PermissionUtil.getInstance(this, permissions);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-
-        sharedViewModel.getAppMode().observe(this, mode -> binding.setMode(mode));
-
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        if (navHostFragment != null) {
-            navController = navHostFragment.getNavController();
-        }
-        setSupportActionBar(binding.toolbar);
-        NavigationUI.setupActionBarWithNavController(this, navController);
-
 
     }
 
@@ -117,20 +105,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return NavigationUI.onNavDestinationSelected(item, navController)
-                || super.onOptionsItemSelected(item);
-    }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        return navController.navigateUp() || super.onSupportNavigateUp();
+    public void onBackPressed() {
+        if (pressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+            try {
+                mPotholeRepository.closeConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finish();
+        } else {
+            Toast.makeText(this, "Press again to close app", Toast.LENGTH_SHORT).show();
+        }
+        pressedTime = System.currentTimeMillis();
     }
 }

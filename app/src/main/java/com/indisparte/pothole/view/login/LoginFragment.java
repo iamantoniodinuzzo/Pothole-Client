@@ -41,11 +41,16 @@ public class LoginFragment extends Fragment {
     protected PotholeRepository mPotholeRepository;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        connectToServer();
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(inflater, container, false);
-        connectToServer();
 
         return binding.getRoot();
     }
@@ -87,7 +92,7 @@ public class LoginFragment extends Fragment {
     private void connectToServer() {
         if (Common.isConnectedToInternet(requireContext())) {//check internet connection
             if (mPotholeRepository == null || !mPotholeRepository.isConnect()) {
-                final ProgressDialog progressDialog = AlertUtil.createProgressDialog(requireContext(),getString(R.string.dialog_connection_server_msg));
+                final ProgressDialog progressDialog = AlertUtil.createProgressDialog(requireContext(), getString(R.string.dialog_connection_server_msg));
                 AsyncTask.execute(() -> {
                     try {
                         Log.d(TAG, "connectToServer: Try to connect to the server");
@@ -123,13 +128,13 @@ public class LoginFragment extends Fragment {
 
     private void connectionServerErrorDialog() {
         Log.e(TAG, "connectionServerErrorDialog: No connection with server");
-       AlertUtil.createSimpleOkCancelDialog(
+        AlertUtil.createSimpleOkCancelDialog(
                 requireContext(),
                 getString(R.string.dialog_error_connection_server_msg),
                 getString(R.string.dialog_error_connection_server_neg_btn),
                 null,
                 (dialogInterface, i) -> requireActivity().finish(),
-               null
+                null
         ).show();
 
     }
@@ -137,24 +142,26 @@ public class LoginFragment extends Fragment {
     private void login() {
         if (mPotholeRepository != null) {
             if (username != null) {
-                final ProgressDialog progressDialog = AlertUtil.createProgressDialog(requireContext(),getString(R.string.dialog_progress_login_msg));
+                // ProgressDialog loginProgressDialog = AlertUtil.createProgressDialog(requireContext(), getString(R.string.dialog_progress_login_msg));
                 AsyncTask.execute(() -> {
                     try {
-                        requireActivity().runOnUiThread(progressDialog::show);
+                        //requireActivity().runOnUiThread(loginProgressDialog::show);
                         Log.d(TAG, "login: Try to login...");
                         mPotholeRepository.setUsername(username);
-                        requireActivity().runOnUiThread(progressDialog::hide);
+                        // requireActivity().runOnUiThread(loginProgressDialog::hide);
                         Log.d(TAG, "login: username send successfully");
-
+                        requireActivity().runOnUiThread(() -> {
+                            //clear edittext
+                            binding.usernameEditText.setText("");
+                            navigateHome();
+                        });
                     } catch (IOException e) {
+                        //requireActivity().runOnUiThread(loginProgressDialog::hide);
                         Log.e(TAG, "login: Connection server error: " + e.getMessage());
                         connectionServerErrorDialog();
                     }
-
                 });
-                //clear edittext
-                binding.usernameEditText.setText("");
-                navigateHome();
+
 
             } else {
                 Log.d(TAG, "login: username is null");
