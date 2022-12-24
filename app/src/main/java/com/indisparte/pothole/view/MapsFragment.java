@@ -3,8 +3,10 @@ package com.indisparte.pothole.view;
 import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
 import static com.indisparte.pothole.util.Constant.ACTION_START_LOCATION_SERVICE;
 import static com.indisparte.pothole.util.Constant.ACTION_STOP_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.DEFAULT_ACCELERATION_THRESHOLD;
 import static com.indisparte.pothole.util.Constant.DEFAULT_CAMERA_ZOOM;
 import static com.indisparte.pothole.util.Constant.DEFAULT_RANGE;
+import static com.indisparte.pothole.util.Constant.EXTRA_DELTA_Z;
 import static com.indisparte.pothole.util.Constant.EXTRA_LOCATION;
 import static com.indisparte.pothole.util.Constant.MAP_TYPE_PREFERENCE_KEY;
 import static com.indisparte.pothole.util.Constant.PRECISION_RANGE_KEY;
@@ -12,6 +14,7 @@ import static com.indisparte.pothole.util.Constant.ZOOM_PREFERENCE_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -55,9 +58,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.indisparte.pothole.R;
+import com.indisparte.pothole.data.model.Pothole;
 import com.indisparte.pothole.databinding.FragmentMapsBinding;
 import com.indisparte.pothole.service.LocationTrackingService;
+import com.indisparte.pothole.service.PotholeRecognizerService;
 import com.indisparte.pothole.util.Mode;
+import com.indisparte.pothole.util.UserPreferenceManager;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 
 
@@ -68,7 +74,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = MapsFragment.class.getSimpleName();
     private FragmentMapsBinding binding;
     private SharedViewModel sharedViewModel;
-    private LocationReceiver locationReceiver;
+    private LocationReceiver mLocationReceiver;
+    private PotholeReceiver mPotholeReceiver;
     private GoogleMap map;
     private Marker carMarker, locationMarker;
     private Circle userLocationAccuracyCircle;
@@ -85,7 +92,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: init sharedViewModel, myReceiver and preferences");
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        locationReceiver = new LocationReceiver();
+        mLocationReceiver = new LocationReceiver();
+        mPotholeReceiver = new PotholeReceiver();
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
@@ -112,7 +120,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         sharedViewModel.getIsPermissionGranted().observe(getViewLifecycleOwner(), areGranted -> {
             binding.setPermissions(areGranted);
-            if (areGranted && !isLocationServiceRunning()) {
+            if (areGranted && !isThisServiceRunning(LocationTrackingService.class)) {
                 getLocation();
             }
         });
@@ -123,19 +131,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         sharedViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), this::updateMyTrackerMarker);
 
         binding.locateMe.setOnClickListener(locateMe -> {
-            if (!isLocationServiceRunning()) getLocation();
+            if (!isThisServiceRunning(LocationTrackingService.class)) getLocation();
         });
 
         binding.trackingBtn.setOnCheckedChangeListener((compoundButton, tracking) -> {
             if (tracking) {
                 Log.d(TAG, "onViewCreated: start tracking mode");
                 sharedViewModel.setAppMode(Mode.TRACKING);
-                startLocationService();
+                startService(LocationTrackingService.class, ACTION_START_LOCATION_SERVICE);
+                startService(PotholeRecognizerService.class,null);
                 removeLocationMarker();
             } else {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
-                stopLocationService();
+                stopService(LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
+                stopService(PotholeRecognizerService.class,null);
                 removeCarMarker();
                 getLocation();
             }
@@ -149,6 +159,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         NavigationUI.setupWithNavController(
                 mToolbar, mNavController, appBarConfiguration);
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return NavigationUI.onNavDestinationSelected(item, mNavController)
@@ -184,16 +195,24 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onPause() {
-        Log.d(TAG, "onPause: unregister receiver");
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(locationReceiver);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(requireContext());
+        Log.d(TAG, "onPause: unregister Location receiver");
+        localBroadcastManager.unregisterReceiver(mLocationReceiver);
+
+        Log.d(TAG, "onPause: unregister Pothole receiver");
+        localBroadcastManager.unregisterReceiver(mPotholeReceiver);
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume: register receiver");
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(locationReceiver,
-                new IntentFilter(ACTION_BROADCAST));
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(requireContext());
+
+        Log.d(TAG, "onResume: register receiver for Location recognizer");
+        localBroadcastManager.registerReceiver(mLocationReceiver, new IntentFilter(ACTION_BROADCAST));
+        Log.d(TAG, "onResume: register receiver for Pothole recognizer");
+        localBroadcastManager.registerReceiver(mPotholeReceiver, new IntentFilter(ACTION_BROADCAST));
+
         super.onResume();
     }
 
@@ -208,7 +227,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     Log.d(TAG, "getLocation: successful, latitude = " + latLng.latitude + " longitude = " + latLng.longitude);
                     setMyLocationMarker(latLng);
                 } else {
-                    Log.d(TAG, "getLocation: failed, current location is null");
+                    Log.e(TAG, "getLocation: failed, current location is null");
                     Toast.makeText(requireContext(), "Unable to get current location, please granted permissions", Toast.LENGTH_LONG).show();
                 }
             });
@@ -219,44 +238,66 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private boolean isLocationServiceRunning() {
-        Log.d(TAG, "isLocationServiceRunning: check if service is running");
+    /**
+     * Check if a specific service is running.
+     * @param service The service class
+     * @param <T> Must extends {@link Service}
+     * @return True if service is running, false otherwise.
+     */
+    private <T extends Service> boolean isThisServiceRunning(@NonNull Class<T> service) {
+        final String serviceName = service.getName();
+        Log.d(TAG, "isThisServiceRunning: check if service (" + serviceName + ") is running");
         ActivityManager activityManager =
                 (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
             for (ActivityManager.RunningServiceInfo running_service :
                     activityManager.getRunningServices(Integer.MAX_VALUE)) {
-                if (LocationTrackingService.class.getName().equals(running_service.service.getClassName())) {
+                if (serviceName.equals(running_service.service.getClassName())) {
                     if (running_service.foreground) {
-                        Log.d(TAG, "isLocationServiceRunning: service is running");
+                        Log.d(TAG, "isThisServiceRunning: service (" + serviceName + ") is running");
                         return true;
                     }
                 }
             }
-            Log.d(TAG, "isLocationServiceRunning: service is not running");
+            Log.e(TAG, "isThisServiceRunning: service (" + serviceName + ") is NOT running");
             return false;
         }
-        Log.d(TAG, "isLocationServiceRunning: service is not running");
+        Log.e(TAG, "isThisServiceRunning: service (" + serviceName + ") is NOT running");
         return false;
     }
 
-    private void startLocationService() {
-        if (!isLocationServiceRunning()) {
-            Intent intent = new Intent(requireActivity().getApplicationContext(), LocationTrackingService.class);
-            intent.setAction(ACTION_START_LOCATION_SERVICE);
+    /**
+     * Start a specific service
+     * @param service The service class
+     * @param action An action, can be null
+     * @param <T> Must extends {@link Service}
+     */
+    private <T extends Service> void startService(@NonNull Class<T> service, String action) {
+        if (!isThisServiceRunning(service)) {
+            Intent intent = new Intent(requireActivity().getApplicationContext(), service);
+            if (action != null)
+                intent.setAction(action);
             requireActivity().startService(intent);
-            Log.d(TAG, "startLocationService: Location tracking service started");
-            Toast.makeText(requireContext(), "Location tracking service started", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "startService: Service (" + service.getName() + ") started");
         }
     }
 
-    private void stopLocationService() {
-        if (isLocationServiceRunning()) {
-            Intent intent = new Intent(requireActivity().getApplicationContext(), LocationTrackingService.class);
-            intent.setAction(ACTION_STOP_LOCATION_SERVICE);
-            requireActivity().startService(intent);
-            Log.d(TAG, "stopLocationService: Location tracking service stopped");
-            Toast.makeText(requireContext(), "Location tracking service stopped", Toast.LENGTH_SHORT).show();
+    /**
+     * Stop a specific service
+     * @param service The service class
+     * @param action An action, can be null. If is null service is only stopped.
+     * @param <T> Must extends {@link Service}
+     */
+    private <T extends Service> void stopService(@NonNull Class<T> service, String action) {
+        if (isThisServiceRunning(service)) {
+            Intent intent = new Intent(requireActivity().getApplicationContext(), service);
+            if (action != null) {
+                intent.setAction(action);
+                requireActivity().startService(intent);
+            } else {
+                requireActivity().stopService(intent);
+            }
+            Log.d(TAG, "stopService: Service (" + service.getName() + ") stopped");
         }
     }
 
@@ -369,7 +410,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Receiver for broadcasts sent by {@link LocationTrackingService}.
+     * Receiver for broadcasts sent by {@link LocationTrackingService}..
+     * This receiver's main action is to receive location changes.
      */
     private class LocationReceiver extends BroadcastReceiver {
         private final String TAG = LocationReceiver.class.getSimpleName();
@@ -377,12 +419,38 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         @Override
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(EXTRA_LOCATION);
+
             if (location != null) {
-                LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                Log.d(TAG, "onReceive: tracking location, current: " + currentLatLng);
+                Log.d(TAG, "onReceive: tracking location, current: " + location);
 //                sharedViewModel.setCurrentLatLng(currentLatLng);
                 sharedViewModel.setCurrentLocation(location);
             }
+        }
+    }
+
+    /**
+     * Receiver for broadcasts sent by {@link PotholeRecognizerService}.
+     * This receiver's main action is to receive acceleration changes on Z axs (pothole),
+     * and create e new pothole object with last found location.
+     * Then this service send the new pothole to the server.
+     */
+    private class PotholeReceiver extends BroadcastReceiver {
+        private final String TAG = PotholeReceiver.class.getSimpleName();
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double deltaZ = intent.getDoubleExtra(EXTRA_DELTA_Z, DEFAULT_ACCELERATION_THRESHOLD);
+
+            Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();
+            Location location = sharedViewModel.getLastLocation();
+            Pothole newPothole = new Pothole(
+                    UserPreferenceManager.getUserName(),
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    deltaZ);
+
+            Log.d(TAG, "onReceive: Pothole ("+newPothole+") found ");
+            // TODO: 24/12/2022 send new pothole to server
         }
     }
 

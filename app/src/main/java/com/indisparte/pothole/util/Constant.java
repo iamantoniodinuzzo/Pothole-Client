@@ -17,10 +17,12 @@ public class Constant {
     public static final int LOCATION_INTERVAL_MILLIS = 4000;
     public static final int FASTEST_INTERVAL_MILLIS = 200;
     public static final int LOCATION_SERVICE_ID = 175;
+    public static final double DEFAULT_ACCELERATION_THRESHOLD = 25.000;
     public static final String ACTION_START_LOCATION_SERVICE = "startLocationTrackingService";
     public static final String ACTION_STOP_LOCATION_SERVICE = "stopLocationTrackingService";
     public static final String PACKAGE_NAME = "com.indisparte.locationapplication";
     public static final String EXTRA_LOCATION = PACKAGE_NAME + ".location";
+    public static final String EXTRA_DELTA_Z = PACKAGE_NAME + ".pothole";
     public static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
 
     //Map customization

@@ -42,6 +42,7 @@ public class SharedViewModel extends ViewModel {
     public MutableLiveData<Location> getCurrentLocation() {
         return currentLocation;
     }
+    public Location getLastLocation(){return currentLocation.getValue();}
 
     public void setCurrentLocation(Location currentLocation) {
         this.currentLocation.postValue(currentLocation);
