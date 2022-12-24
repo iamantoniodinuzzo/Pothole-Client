@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 import com.indisparte.pothole.BuildConfig;
 import com.indisparte.pothole.data.model.Pothole;
+import com.indisparte.pothole.util.Constant;
 import com.indisparte.pothole.util.ServerCommand;
 import com.indisparte.pothole.util.ServerCommand.CommandType;
 
@@ -29,7 +30,6 @@ import java.util.List;
 public class TcpClient {
     private static final String TAG = TcpClient.class.getSimpleName();
     public static final int SO_TIMEOUT = 6000;
-    public static final double DEFAULT_THRESHOLD = 20.0;
     private static TcpClient instance = null;
     private static final String HOST_NAME = BuildConfig.SERVER_ADDRESS;
     private static final int HOST_PORT = Integer.parseInt(BuildConfig.SERVER_PORT);
@@ -126,11 +126,8 @@ public class TcpClient {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     //get each value in string format: user,lat,lng,var
                     String jsonElem = jsonArray.getString(i);
-                    Log.d(TAG, "getAllPotholesByRange, jsonElem: "+jsonElem);
                     Pothole newPothole = new Gson().fromJson(String.valueOf(jsonElem), Pothole.class);
-                    Log.d(TAG, "getAllPotholesByRange, new pothole: "+newPothole);
                     potholes.add(newPothole);
-
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "getAllPotholesByRange: " + e.getMessage());
@@ -141,7 +138,7 @@ public class TcpClient {
     }
 
     public Double getThreshold() throws IOException {
-        double threshold = DEFAULT_THRESHOLD;
+        double threshold = Constant.DEFAULT_ACCELERATION_THRESHOLD;
         String result;
         write(new ServerCommand(CommandType.THRESHOLD));
 

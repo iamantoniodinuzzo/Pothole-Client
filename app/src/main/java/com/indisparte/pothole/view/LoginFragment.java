@@ -1,4 +1,4 @@
-package com.indisparte.pothole.view.login;
+package com.indisparte.pothole.view;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
@@ -131,10 +131,10 @@ public class LoginFragment extends Fragment {
         AlertUtil.createSimpleOkCancelDialog(
                 requireContext(),
                 getString(R.string.dialog_error_connection_server_msg),
+                getString(R.string.dialog_error_connection_server_pos_btn),
                 getString(R.string.dialog_error_connection_server_neg_btn),
-                null,
-                (dialogInterface, i) -> requireActivity().finish(),
-                null
+                (dialogInterface, i) -> requireActivity().runOnUiThread(this::connectToServer),
+                (dialogInterface, i) -> requireActivity().finish()
         ).show();
 
     }

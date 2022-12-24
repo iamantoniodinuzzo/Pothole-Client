@@ -1,5 +1,8 @@
 package com.indisparte.pothole.service;
 
+import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
+import static com.indisparte.pothole.util.Constant.EXTRA_DELTA_Z;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,15 +15,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.indisparte.pothole.di.component.PotholeApplication;
+import com.indisparte.pothole.util.Constant;
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
 public class PotholeRecognizerService extends Service implements SensorEventListener {
-    public static final int MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION = 2;
-    private static final double ACCELERATION_THRESHOLD = 25.000;//TODO should be customizable
+    private static final int MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION = 2;
     private static final double GRAVITY = 9.18;
     private static final String TAG = PotholeRecognizerService.class.getSimpleName();
     private SensorManager sensorManager;
@@ -71,12 +75,13 @@ public class PotholeRecognizerService extends Service implements SensorEventList
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(TAG, success_message);
         } else {
-            Log.d(TAG, error_message);
+            Log.e(TAG, error_message);
             Toast.makeText(PotholeApplication.getContext(), error_message, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void initSensors() {
+        Log.d(TAG, "initSensors: Initializing sensors");
         sensorManager = (SensorManager) PotholeApplication.getContext().getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
@@ -112,8 +117,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
 
         double deltaZ = Math.abs(getVerticalAccel());
 
-        if (deltaZ > ACCELERATION_THRESHOLD) {
-            // TODO If not Access fine location permission, return
+        if (deltaZ > Constant.DEFAULT_ACCELERATION_THRESHOLD) {
 
             /*
             This block checks if at least MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION
@@ -126,13 +130,17 @@ public class PotholeRecognizerService extends Service implements SensorEventList
 
             lastEvent = newEvent;
 
-            //TODO build pothole object
+            Log.d(TAG, "onSensorChanged: found pothole with deltaZ = " + deltaZ);
 
-            //TODO send pothole to server
-
-            Log.d(TAG, "onSensorChanged: deltaZ-> " + deltaZ);
-            Toast.makeText(PotholeApplication.getContext(), "Pothole found!", Toast.LENGTH_SHORT).show();
+            onPotholeFound(deltaZ);
         }
+    }
+
+    private void onPotholeFound(double deltaZ){
+        //Notify anyone listening for broadcasts about the new Pothole
+        Intent intent = new Intent(ACTION_BROADCAST);
+        intent.putExtra(EXTRA_DELTA_Z,deltaZ);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
     private double getVerticalAccel() {

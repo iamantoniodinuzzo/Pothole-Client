@@ -2,6 +2,7 @@ package com.indisparte.pothole.data.network;
 
 import androidx.annotation.NonNull;
 
+import com.indisparte.pothole.data.model.Filter;
 import com.indisparte.pothole.data.model.Pothole;
 
 import java.io.IOException;
@@ -40,8 +41,8 @@ public class PotholeRepository {
         mClient.setUsername(username);
     }
 
-    public List<Pothole> getPotholesByRange(int range, double latitude, double longitude) throws IOException {
-        return mClient.getAllPotholesByRange(range, latitude, longitude);
+    public List<Pothole> getPotholesByRange(@NonNull Filter filter) throws IOException {
+        return mClient.getAllPotholesByRange(filter.getRadius(), filter.getCenterLatLng().latitude, filter.getCenterLatLng().longitude);
     }
 
     public Double getThreshold() throws IOException {
