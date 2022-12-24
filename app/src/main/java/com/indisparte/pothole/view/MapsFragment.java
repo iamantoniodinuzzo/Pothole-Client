@@ -3,7 +3,6 @@ package com.indisparte.pothole.view;
 import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
 import static com.indisparte.pothole.util.Constant.ACTION_START_LOCATION_SERVICE;
 import static com.indisparte.pothole.util.Constant.ACTION_STOP_LOCATION_SERVICE;
-import static com.indisparte.pothole.util.Constant.DEFAULT_ACCELERATION_THRESHOLD;
 import static com.indisparte.pothole.util.Constant.DEFAULT_CAMERA_ZOOM;
 import static com.indisparte.pothole.util.Constant.DEFAULT_RANGE;
 import static com.indisparte.pothole.util.Constant.EXTRA_DELTA_Z;
@@ -22,6 +21,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -58,7 +58,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.indisparte.pothole.R;
+import com.indisparte.pothole.data.model.Filter;
 import com.indisparte.pothole.data.model.Pothole;
+import com.indisparte.pothole.data.network.PotholeRepository;
 import com.indisparte.pothole.databinding.FragmentMapsBinding;
 import com.indisparte.pothole.service.LocationTrackingService;
 import com.indisparte.pothole.service.PotholeRecognizerService;
@@ -66,10 +68,18 @@ import com.indisparte.pothole.util.Mode;
 import com.indisparte.pothole.util.UserPreferenceManager;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
+@AndroidEntryPoint
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = MapsFragment.class.getSimpleName();
     private FragmentMapsBinding binding;
@@ -86,6 +96,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private int radius, mapType;
     private CircleOptions circleOptions;
     private SupportMapFragment mapFragment;
+    @Inject
+    protected PotholeRepository mPotholeRepository;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,9 +111,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater, container, false);
         mToolbar = binding.toolbar;
 
@@ -139,13 +150,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "onViewCreated: start tracking mode");
                 sharedViewModel.setAppMode(Mode.TRACKING);
                 startService(LocationTrackingService.class, ACTION_START_LOCATION_SERVICE);
-                startService(PotholeRecognizerService.class,null);
+                startService(PotholeRecognizerService.class, null);
                 removeLocationMarker();
             } else {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
                 stopService(LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
-                stopService(PotholeRecognizerService.class,null);
+                stopService(PotholeRecognizerService.class, null);
                 removeCarMarker();
                 getLocation();
             }
@@ -154,16 +165,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void setupToolbar(@NonNull View view) {
         mNavController = Navigation.findNavController(view);
-        AppBarConfiguration appBarConfiguration =
-                new AppBarConfiguration.Builder(R.id.settingsFragment, R.id.mapsFragment).build();
-        NavigationUI.setupWithNavController(
-                mToolbar, mNavController, appBarConfiguration);
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.settingsFragment, R.id.mapsFragment).build();
+        NavigationUI.setupWithNavController(mToolbar, mNavController, appBarConfiguration);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        return NavigationUI.onNavDestinationSelected(item, mNavController)
-                || super.onOptionsItemSelected(item);
+        return NavigationUI.onNavDestinationSelected(item, mNavController) || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -226,6 +234,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     Log.d(TAG, "getLocation: successful, latitude = " + latLng.latitude + " longitude = " + latLng.longitude);
                     setMyLocationMarker(latLng);
+                    getPotholesInMyArea(latLng);
                 } else {
                     Log.e(TAG, "getLocation: failed, current location is null");
                     Toast.makeText(requireContext(), "Unable to get current location, please granted permissions", Toast.LENGTH_LONG).show();
@@ -238,20 +247,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    private void getPotholesInMyArea(LatLng latLng) {
+        AsyncTask.execute(() -> {
+            try {
+                List<Pothole> potholes = mPotholeRepository.getPotholesByRange(new Filter(radius, latLng));
+                Log.d(TAG, "getPotholesInMyArea: Get all potholes successfully -> " + potholes);
+            } catch (IOException e) {
+                Log.e(TAG, "getPotholesInMyArea: Error->" + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
     /**
      * Check if a specific service is running.
+     *
      * @param service The service class
-     * @param <T> Must extends {@link Service}
+     * @param <T>     Must extends {@link Service}
      * @return True if service is running, false otherwise.
      */
     private <T extends Service> boolean isThisServiceRunning(@NonNull Class<T> service) {
         final String serviceName = service.getName();
         Log.d(TAG, "isThisServiceRunning: check if service (" + serviceName + ") is running");
-        ActivityManager activityManager =
-                (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
         if (activityManager != null) {
-            for (ActivityManager.RunningServiceInfo running_service :
-                    activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            for (ActivityManager.RunningServiceInfo running_service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
                 if (serviceName.equals(running_service.service.getClassName())) {
                     if (running_service.foreground) {
                         Log.d(TAG, "isThisServiceRunning: service (" + serviceName + ") is running");
@@ -268,15 +288,15 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Start a specific service
+     *
      * @param service The service class
-     * @param action An action, can be null
-     * @param <T> Must extends {@link Service}
+     * @param action  An action, can be null
+     * @param <T>     Must extends {@link Service}
      */
     private <T extends Service> void startService(@NonNull Class<T> service, String action) {
         if (!isThisServiceRunning(service)) {
             Intent intent = new Intent(requireActivity().getApplicationContext(), service);
-            if (action != null)
-                intent.setAction(action);
+            if (action != null) intent.setAction(action);
             requireActivity().startService(intent);
             Log.d(TAG, "startService: Service (" + service.getName() + ") started");
         }
@@ -284,9 +304,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Stop a specific service
+     *
      * @param service The service class
-     * @param action An action, can be null. If is null service is only stopped.
-     * @param <T> Must extends {@link Service}
+     * @param action  An action, can be null. If is null service is only stopped.
+     * @param <T>     Must extends {@link Service}
      */
     private <T extends Service> void stopService(@NonNull Class<T> service, String action) {
         if (isThisServiceRunning(service)) {
@@ -307,8 +328,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void setMyLocationMarker(@NonNull LatLng latLng) {
         if (locationMarker == null) {
             //create a new marker options and update marker
-            MarkerOptions markerOptions = new MarkerOptions()
-                    .position(latLng);
+            MarkerOptions markerOptions = new MarkerOptions().position(latLng);
             locationMarker = map.addMarker(markerOptions);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         } else {
@@ -324,10 +344,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      */
     private void setUserAccuracyCircle(LatLng latLng) {
         if (userLocationAccuracyCircle == null) {
-            circleOptions = new CircleOptions()
-                    .center(latLng)
-                    .strokeWidth(4)
-                    .strokeColor(Color.argb(255, 255, 0, 0))//TODO customize
+            circleOptions = new CircleOptions().center(latLng).strokeWidth(4).strokeColor(Color.argb(255, 255, 0, 0))//TODO customize
                     .fillColor(Color.argb(32, 255, 0, 0))//TODO customize
                     .radius(radius);
             userLocationAccuracyCircle = map.addCircle(circleOptions);
@@ -345,11 +362,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (map != null) {
             if (carMarker == null) {
                 //create a new marker
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.blu_car))
-                        .anchor((float) 0.5, (float) 0.5)
-                        .rotation(location.getBearing());
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.blu_car)).anchor((float) 0.5, (float) 0.5).rotation(location.getBearing());
                 carMarker = map.addMarker(markerOptions);
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
             } else {
@@ -422,7 +435,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             if (location != null) {
                 Log.d(TAG, "onReceive: tracking location, current: " + location);
-//                sharedViewModel.setCurrentLatLng(currentLatLng);
                 sharedViewModel.setCurrentLocation(location);
             }
         }
@@ -439,18 +451,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            double deltaZ = intent.getDoubleExtra(EXTRA_DELTA_Z, DEFAULT_ACCELERATION_THRESHOLD);
+            double deltaZ = intent.getDoubleExtra(EXTRA_DELTA_Z, 0);
 
-            Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();
             Location location = sharedViewModel.getLastLocation();
-            Pothole newPothole = new Pothole(
-                    UserPreferenceManager.getUserName(),
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    deltaZ);
+            if (location != null && deltaZ != 0) {
+                Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();// TODO: 24/12/2022 make a sound
+                Pothole newPothole = new Pothole(UserPreferenceManager.getUserName(), location.getLatitude(), location.getLongitude(), deltaZ);
+                Log.d(TAG, "onReceive: Pothole (" + newPothole + ") found ");
+                // TODO: 24/12/2022 send new pothole to server
+                // TODO: 24/12/2022 add pothole to the map
+            }
 
-            Log.d(TAG, "onReceive: Pothole ("+newPothole+") found ");
-            // TODO: 24/12/2022 send new pothole to server
         }
     }
 

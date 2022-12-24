@@ -21,7 +21,7 @@
         android:label="Settings" />
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.indisparte.pothole.view.login.LoginFragment"
+        android:name="com.indisparte.pothole.view.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login" >
         <action

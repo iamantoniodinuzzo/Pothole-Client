@@ -73,8 +73,6 @@ public class AlertUtil {
      * Crea una semplice custom load dialog con un indicatore di progresso e un button per terminare l'azione
      *
      * @param message                     il messaggio da affiancare al caricamento
-     * @param positive_btn_msg            il messaggio da far comparire sul button
-     * @param positiveButtonClickListener l'azione da eseguire alla pressione del button
      * @return progressDialog
      */
     public static ProgressDialog createProgressDialog(@NonNull Context context,

@@ -8,19 +8,19 @@ import com.google.android.gms.maps.model.LatLng;
  * @author Antonio Di Nuzzo (Indisparte)
  */
 public class Filter {
-    private final String radius;
-    private final LatLng latLng;
+    private final int radius;
+    private final LatLng centerLatLng;
 
-    public Filter(@NonNull String radius, @NonNull LatLng latLng) {
+    public Filter(int radius, @NonNull LatLng latLng) {
         this.radius = radius;
-        this.latLng = latLng;
+        this.centerLatLng = latLng;
     }
 
-    public String getRadius() {
+    public int getRadius() {
         return radius;
     }
 
-    public LatLng getLatLng() {
-        return latLng;
+    public LatLng getCenterLatLng() {
+        return centerLatLng;
     }
 }
