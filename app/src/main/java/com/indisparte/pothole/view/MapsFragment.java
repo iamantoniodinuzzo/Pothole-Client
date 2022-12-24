@@ -2,7 +2,9 @@ package com.indisparte.pothole.view;
 
 import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
 import static com.indisparte.pothole.util.Constant.ACTION_START_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.ACTION_START_POTHOLE_SERVICE;
 import static com.indisparte.pothole.util.Constant.ACTION_STOP_LOCATION_SERVICE;
+import static com.indisparte.pothole.util.Constant.ACTION_STOP_POTHOLE_SERVICE;
 import static com.indisparte.pothole.util.Constant.DEFAULT_CAMERA_ZOOM;
 import static com.indisparte.pothole.util.Constant.DEFAULT_RANGE;
 import static com.indisparte.pothole.util.Constant.EXTRA_DELTA_Z;
@@ -150,13 +152,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "onViewCreated: start tracking mode");
                 sharedViewModel.setAppMode(Mode.TRACKING);
                 startService(LocationTrackingService.class, ACTION_START_LOCATION_SERVICE);
-                startService(PotholeRecognizerService.class, null);
+                startService(PotholeRecognizerService.class, ACTION_START_POTHOLE_SERVICE);
                 removeLocationMarker();
             } else {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
                 stopService(LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
-                stopService(PotholeRecognizerService.class, null);
+                stopService(PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);// TODO: 24/12/2022 This not stop service
                 removeCarMarker();
                 getLocation();
             }
@@ -273,10 +275,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (activityManager != null) {
             for (ActivityManager.RunningServiceInfo running_service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
                 if (serviceName.equals(running_service.service.getClassName())) {
-                    if (running_service.foreground) {
-                        Log.d(TAG, "isThisServiceRunning: service (" + serviceName + ") is running");
-                        return true;
-                    }
+                    Log.d(TAG, "isThisServiceRunning: service (" + serviceName + ") is running");
+                    return true;
                 }
             }
             Log.e(TAG, "isThisServiceRunning: service (" + serviceName + ") is NOT running");
@@ -293,10 +293,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      * @param action  An action, can be null
      * @param <T>     Must extends {@link Service}
      */
-    private <T extends Service> void startService(@NonNull Class<T> service, String action) {
+    private <T extends Service> void startService(@NonNull Class<T> service, @NonNull String action) {
         if (!isThisServiceRunning(service)) {
             Intent intent = new Intent(requireActivity().getApplicationContext(), service);
-            if (action != null) intent.setAction(action);
+            intent.setAction(action);
             requireActivity().startService(intent);
             Log.d(TAG, "startService: Service (" + service.getName() + ") started");
         }
@@ -309,15 +309,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      * @param action  An action, can be null. If is null service is only stopped.
      * @param <T>     Must extends {@link Service}
      */
-    private <T extends Service> void stopService(@NonNull Class<T> service, String action) {
+    private <T extends Service> void stopService(@NonNull Class<T> service, @NonNull String action) {
         if (isThisServiceRunning(service)) {
             Intent intent = new Intent(requireActivity().getApplicationContext(), service);
-            if (action != null) {
-                intent.setAction(action);
-                requireActivity().startService(intent);
-            } else {
-                requireActivity().stopService(intent);
-            }
+            intent.setAction(action);
+            requireActivity().startService(intent);
             Log.d(TAG, "stopService: Service (" + service.getName() + ") stopped");
         }
     }
@@ -458,10 +454,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();// TODO: 24/12/2022 make a sound
                 Pothole newPothole = new Pothole(UserPreferenceManager.getUserName(), location.getLatitude(), location.getLongitude(), deltaZ);
                 Log.d(TAG, "onReceive: Pothole (" + newPothole + ") found ");
-                // TODO: 24/12/2022 send new pothole to server
+                sendNewPotholeToServer(newPothole);
                 // TODO: 24/12/2022 add pothole to the map
             }
 
+        }
+
+        private void sendNewPotholeToServer(Pothole pothole) {
+            AsyncTask.execute(() -> {
+                try {
+                    mPotholeRepository.addPothole(pothole);
+                    Log.d(TAG, "sendNewPotholeToServer: New Pothole send successfully");
+                } catch (IOException e) {
+                    Log.e(TAG, "sendNewPotholeToServer error : " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+            });
         }
     }
 

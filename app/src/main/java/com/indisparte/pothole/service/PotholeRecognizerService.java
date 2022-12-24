@@ -44,7 +44,40 @@ public class PotholeRecognizerService extends Service implements SensorEventList
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
+
+        if (intent!=null){
+            final String action = intent.getAction();
+            if (action!=null){
+                if (action.equals(Constant.ACTION_START_POTHOLE_SERVICE)){
+                    Log.d(TAG, "onStartCommand: start pothole service");
+                    startPotholeRecogniserService();
+                }else if (action.equals(Constant.ACTION_STOP_POTHOLE_SERVICE)){
+                    Log.d(TAG, "onStartCommand: stop location service");
+                    stopPotholeRecognizerService();
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void registerSensor(Sensor sensor, String success_message, String error_message) {
+        if (sensor != null) {
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, success_message);
+        } else {
+            Log.e(TAG, error_message);
+            Toast.makeText(PotholeApplication.getContext(), error_message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void initSensors() {
+        Log.d(TAG, "initSensors: Initializing sensors");
+        sensorManager = (SensorManager) PotholeApplication.getContext().getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+    }
+
+    private void startPotholeRecogniserService(){
         try {
             Log.d(TAG, "Service started!");
 
@@ -66,41 +99,29 @@ public class PotholeRecognizerService extends Service implements SensorEventList
             Log.e(TAG, "PotholeSensorListener start: Exception->" + e.getMessage());
             e.printStackTrace();
         }
-
-        return START_STICKY;
     }
 
-    private void registerSensor(Sensor sensor, String success_message, String error_message) {
-        if (sensor != null) {
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, success_message);
-        } else {
-            Log.e(TAG, error_message);
-            Toast.makeText(PotholeApplication.getContext(), error_message, Toast.LENGTH_SHORT).show();
-        }
+    private void stopPotholeRecognizerService(){
+        unregisterSensor();
+        stopForeground(true);
+        stopSelf();
+        Log.d(TAG, "stopPotholeRecognizerService: service stopped");
     }
 
-    private void initSensors() {
-        Log.d(TAG, "initSensors: Initializing sensors");
-        sensorManager = (SensorManager) PotholeApplication.getContext().getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-    }
-
-    @Override
+   /* @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterSensor();
-    }
+    }*/
 
 
-    @Override
+  /*  @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         stopForeground(true);
         unregisterSensor();
         stopSelf();
-    }
+    }*/
 
     private void unregisterSensor() {
         Log.d(TAG, "Service stopped!");
