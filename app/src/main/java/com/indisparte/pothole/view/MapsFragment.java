@@ -126,11 +126,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateThreshold() {
-        AsyncTask.execute(()->{
+        AsyncTask.execute(() -> {
             try {
                 mThreshold = mPotholeRepository.getThreshold();
-                Log.d(TAG, "updateThreshold, successfully retrieve threshold");
+                Log.d(TAG, "updateThreshold, successfully retrieve threshold: " + mThreshold);
             } catch (IOException e) {
+                Log.e(TAG, "updateThreshold, Error: " + e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -310,6 +311,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (!isThisServiceRunning(service)) {
             Intent intent = new Intent(requireActivity().getApplicationContext(), service);
             intent.setAction(action);
+            if (mThreshold != 0)
+                intent.putExtra("threshold", mThreshold);
             requireActivity().startService(intent);
             Log.d(TAG, "startService: Service (" + service.getName() + ") started");
         }
