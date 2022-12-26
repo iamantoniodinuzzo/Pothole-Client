@@ -100,6 +100,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private SupportMapFragment mapFragment;
     @Inject
     protected PotholeRepository mPotholeRepository;
+    private double mThreshold;
 
 
     @Override
@@ -118,9 +119,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mToolbar = binding.toolbar;
 
         initMap();
+        updateThreshold();
         ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
         setHasOptionsMenu(true);
         return binding.getRoot();
+    }
+
+    private void updateThreshold() {
+        AsyncTask.execute(()->{
+            try {
+                mThreshold = mPotholeRepository.getThreshold();
+                Log.d(TAG, "updateThreshold, successfully retrieve threshold");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -158,7 +171,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
                 stopService(LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
-                stopService(PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);// TODO: 24/12/2022 This not stop service
+                stopService(PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);
                 removeCarMarker();
                 getLocation();
             }
@@ -340,7 +353,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      */
     private void setUserAccuracyCircle(LatLng latLng) {
         if (userLocationAccuracyCircle == null) {
-            circleOptions = new CircleOptions().center(latLng).strokeWidth(4).strokeColor(Color.argb(255, 255, 0, 0))//TODO customize
+            circleOptions = new CircleOptions()
+                    .center(latLng).
+                    strokeWidth(4)
+                    .strokeColor(Color.argb(255, 255, 0, 0))//TODO customize
                     .fillColor(Color.argb(32, 255, 0, 0))//TODO customize
                     .radius(radius);
             userLocationAccuracyCircle = map.addCircle(circleOptions);
@@ -358,7 +374,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (map != null) {
             if (carMarker == null) {
                 //create a new marker
-                MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.blu_car)).anchor((float) 0.5, (float) 0.5).rotation(location.getBearing());
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.blu_car)) // TODO: 26/12/2022 Customize
+                        .anchor((float) 0.5, (float) 0.5)
+                        .rotation(location.getBearing());
                 carMarker = map.addMarker(markerOptions);
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
             } else {
