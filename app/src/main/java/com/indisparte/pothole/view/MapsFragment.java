@@ -12,10 +12,11 @@ import static com.indisparte.pothole.util.Constant.EXTRA_LOCATION;
 import static com.indisparte.pothole.util.Constant.MAP_TYPE_PREFERENCE_KEY;
 import static com.indisparte.pothole.util.Constant.PRECISION_RANGE_KEY;
 import static com.indisparte.pothole.util.Constant.ZOOM_PREFERENCE_KEY;
+import static com.indisparte.pothole.util.ServiceUtil.isThisServiceRunning;
+import static com.indisparte.pothole.util.ServiceUtil.startService;
+import static com.indisparte.pothole.util.ServiceUtil.stopService;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -150,7 +151,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         sharedViewModel.getIsPermissionGranted().observe(getViewLifecycleOwner(), areGranted -> {
             binding.setPermissions(areGranted);
-            if (areGranted && !isThisServiceRunning(LocationTrackingService.class)) {
+            if (areGranted && !isThisServiceRunning(requireActivity(),LocationTrackingService.class)) {
                 getLocation();
             }
         });
@@ -161,21 +162,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         sharedViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), this::updateMyTrackerMarker);
 
         binding.locateMe.setOnClickListener(locateMe -> {
-            if (!isThisServiceRunning(LocationTrackingService.class)) getLocation();
+            if (!isThisServiceRunning(requireActivity(),LocationTrackingService.class)) getLocation();
         });
 
         binding.trackingBtn.setOnCheckedChangeListener((compoundButton, tracking) -> {
             if (tracking) {
                 Log.d(TAG, "onViewCreated: start tracking mode");
                 sharedViewModel.setAppMode(Mode.TRACKING);
-                startService(LocationTrackingService.class, ACTION_START_LOCATION_SERVICE);
-                startService(PotholeRecognizerService.class, ACTION_START_POTHOLE_SERVICE);
+                startService(requireActivity(),LocationTrackingService.class, ACTION_START_LOCATION_SERVICE, mThreshold);
+                startService(requireActivity(),PotholeRecognizerService.class, ACTION_START_POTHOLE_SERVICE,mThreshold);
                 removeLocationMarker();
             } else {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
-                stopService(LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
-                stopService(PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);
+                stopService(requireActivity(),LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
+                stopService(requireActivity(),PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);
                 removeCarMarker();
                 getLocation();
             }
@@ -288,64 +289,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    /**
-     * Check if a specific service is running.
-     *
-     * @param service The service class
-     * @param <T>     Must extends {@link Service}
-     * @return True if service is running, false otherwise.
-     */
-    private <T extends Service> boolean isThisServiceRunning(@NonNull Class<T> service) {
-        final String serviceName = service.getName();
-        Log.d(TAG, "isThisServiceRunning: check if service (" + serviceName + ") is running");
-        ActivityManager activityManager = (ActivityManager) requireActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        if (activityManager != null) {
-            for (ActivityManager.RunningServiceInfo running_service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
-                if (serviceName.equals(running_service.service.getClassName())) {
-                    Log.d(TAG, "isThisServiceRunning: service (" + serviceName + ") is running");
-                    return true;
-                }
-            }
-            Log.e(TAG, "isThisServiceRunning: service (" + serviceName + ") is NOT running");
-            return false;
-        }
-        Log.e(TAG, "isThisServiceRunning: service (" + serviceName + ") is NOT running");
-        return false;
-    }
-
-    /**
-     * Start a specific service
-     *
-     * @param service The service class
-     * @param action  An action, can be null
-     * @param <T>     Must extends {@link Service}
-     */
-    private <T extends Service> void startService(@NonNull Class<T> service, @NonNull String action) {
-        if (!isThisServiceRunning(service)) {
-            Intent intent = new Intent(requireActivity().getApplicationContext(), service);
-            intent.setAction(action);
-            if (mThreshold != 0)
-                intent.putExtra("threshold", mThreshold);
-            requireActivity().startService(intent);
-            Log.d(TAG, "startService: Service (" + service.getName() + ") started");
-        }
-    }
-
-    /**
-     * Stop a specific service
-     *
-     * @param service The service class
-     * @param action  An action, can be null. If is null service is only stopped.
-     * @param <T>     Must extends {@link Service}
-     */
-    private <T extends Service> void stopService(@NonNull Class<T> service, @NonNull String action) {
-        if (isThisServiceRunning(service)) {
-            Intent intent = new Intent(requireActivity().getApplicationContext(), service);
-            intent.setAction(action);
-            requireActivity().startService(intent);
-            Log.d(TAG, "stopService: Service (" + service.getName() + ") stopped");
-        }
-    }
 
     /**
      * Set placeholder when user request location
