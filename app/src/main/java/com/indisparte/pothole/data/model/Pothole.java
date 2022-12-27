@@ -2,6 +2,8 @@ package com.indisparte.pothole.data.model;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 /**
  * @author Antonio Di Nuzzo (Indisparte)
  */
@@ -34,6 +36,19 @@ public class Pothole {
 
     public String getUser() {
         return user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Pothole)) return false;
+        Pothole pothole = (Pothole) o;
+        return getUser().equals(pothole.getUser()) && getLat().equals(pothole.getLat()) && getLon().equals(pothole.getLon()) && getVar().equals(pothole.getVar());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUser(), getLat(), getLon(), getVar());
     }
 
     @NonNull

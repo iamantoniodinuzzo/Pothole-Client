@@ -71,7 +71,8 @@ import com.indisparte.pothole.util.UserPreferenceManager;
 import com.indisparte.pothole.view.viewModel.SharedViewModel;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -101,6 +102,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Inject
     protected PotholeRepository mPotholeRepository;
     private double mThreshold;
+    private HashSet<Marker> potholeMarkers;
 
 
     @Override
@@ -110,6 +112,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         mLocationReceiver = new LocationReceiver();
         mPotholeReceiver = new PotholeReceiver();
+        potholeMarkers = new HashSet<>();
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
@@ -243,7 +246,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getLocation() {
         try {
             Log.d(TAG, "getLocation: try to get location");
-            @SuppressLint("MissingPermission") Task<Location> locationTask = LocationServices.getFusedLocationProviderClient(requireActivity()).getLastLocation();
+            @SuppressLint("MissingPermission") Task<Location> locationTask =
+                    LocationServices.getFusedLocationProviderClient(requireActivity()).getLastLocation();
             locationTask.addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
@@ -253,7 +257,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     getPotholesInMyArea(latLng);
                 } else {
                     Log.e(TAG, "getLocation: failed, current location is null");
-                    Toast.makeText(requireContext(), "Unable to get current location, please granted permissions", Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), "Unable to get current location, please granted permissions from settings", Toast.LENGTH_LONG).show();
                 }
             });
         } catch (SecurityException e) {
@@ -266,11 +270,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getPotholesInMyArea(LatLng latLng) {
         AsyncTask.execute(() -> {
             try {
-                List<Pothole> potholes = mPotholeRepository.getPotholesByRange(new Filter(radius, latLng));
-                Log.d(TAG, "getPotholesInMyArea: Get all potholes successfully -> " + potholes);
+                Set<Pothole> potholes = mPotholeRepository.getPotholesByRange(new Filter(radius, latLng));
+                Log.d(TAG, "getPotholesInMyArea, get all potholes successfully : " + potholes);
+                putPotholesOnMap(potholes);
             } catch (IOException e) {
-                Log.e(TAG, "getPotholesInMyArea: Error->" + e.getMessage());
+                Log.e(TAG, "getPotholesInMyArea, error: " + e.getMessage());
                 e.printStackTrace();
+            }
+        });
+    }
+
+    private void putPotholesOnMap(Set<Pothole> potholes) {
+        requireActivity().runOnUiThread(() -> {
+            for (Pothole p : potholes) {
+                setPotholeMarker(p);
             }
         });
     }
@@ -340,8 +353,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void setMyLocationMarker(@NonNull LatLng latLng) {
         if (locationMarker == null) {
             //create a new marker options and update marker
-            MarkerOptions markerOptions = new MarkerOptions().position(latLng);
-            locationMarker = map.addMarker(markerOptions);
+            MarkerOptions positionMarkerOptions = new MarkerOptions().position(latLng);
+            locationMarker = map.addMarker(positionMarkerOptions);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         } else {
             //use the previously marker
@@ -349,6 +362,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         }
         setUserAccuracyCircle(latLng);
+    }
+
+    private void setPotholeMarker(@NonNull Pothole pothole) {
+        MarkerOptions potholeMarkerOptions = new MarkerOptions()
+                .position(new LatLng(pothole.getLat(), pothole.getLon()))
+                .snippet("Found by " + pothole.getUser())
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_hole));
+        potholeMarkers.add(map.addMarker(potholeMarkerOptions));
+        Log.d(TAG, "setPotholeMarker: Pothole added");
+    }
+
+    private void removeAllPotholeMarkers() {
+        for (Marker m : potholeMarkers) {
+            m.remove();
+        }
+        potholeMarkers.clear();
+        Log.d(TAG, "removeAllPotholeMarkers: All potholes removed");
     }
 
     /**
@@ -415,6 +445,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        removeAllPotholeMarkers();
         binding = null;
     }
 
@@ -478,7 +509,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Pothole newPothole = new Pothole(UserPreferenceManager.getUserName(), location.getLatitude(), location.getLongitude(), deltaZ);
                 Log.d(TAG, "onReceive: Pothole (" + newPothole + ") found ");
                 sendNewPotholeToServer(newPothole);
-                // TODO: 24/12/2022 add pothole to the map
+                setPotholeMarker(newPothole);
             }
 
         }
