@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
@@ -104,9 +104,9 @@ public class TcpClient {
     }
 
 
-    public List<Pothole> getAllPotholesByRange(int range, double latitude, double longitude) throws IOException {
+    public Set<Pothole> getAllPotholesByRange(int range, double latitude, double longitude) throws IOException {
         String result;
-        List<Pothole> potholes = new ArrayList<>();
+        HashSet<Pothole> potholes = new HashSet<>();
 
         write(new ServerCommand(CommandType.HOLE_LIST_BY_RANGE,
                         String.valueOf(latitude),

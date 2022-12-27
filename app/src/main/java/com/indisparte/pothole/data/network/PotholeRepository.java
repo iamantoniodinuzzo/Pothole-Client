@@ -6,7 +6,7 @@ import com.indisparte.pothole.data.model.Filter;
 import com.indisparte.pothole.data.model.Pothole;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Antonio Di Nuzzo (Indisparte)
@@ -41,7 +41,7 @@ public class PotholeRepository {
         mClient.setUsername(username);
     }
 
-    public List<Pothole> getPotholesByRange(@NonNull Filter filter) throws IOException {
+    public Set<Pothole> getPotholesByRange(@NonNull Filter filter) throws IOException {
         return mClient.getAllPotholesByRange(filter.getRadius(), filter.getCenterLatLng().latitude, filter.getCenterLatLng().longitude);
     }
 

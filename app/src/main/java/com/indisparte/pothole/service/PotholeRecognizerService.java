@@ -1,6 +1,7 @@
 package com.indisparte.pothole.service;
 
 import static com.indisparte.pothole.util.Constant.ACTION_BROADCAST;
+import static com.indisparte.pothole.util.Constant.DEFAULT_ACCELERATION_THRESHOLD;
 import static com.indisparte.pothole.util.Constant.EXTRA_DELTA_Z;
 
 import android.app.Service;
@@ -32,6 +33,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     private Sensor gravity;
     private double x_accel, y_accel, z_accel, x_gravity, y_gravity, z_gravity;
     private long lastEvent = System.currentTimeMillis();
+    private double mThreshold;
 
     public PotholeRecognizerService() {
     }
@@ -46,6 +48,8 @@ public class PotholeRecognizerService extends Service implements SensorEventList
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (intent!=null){
+            mThreshold = intent.getDoubleExtra("threshold",DEFAULT_ACCELERATION_THRESHOLD);
+            Log.d(TAG, "onStartCommand: received threshold ("+mThreshold+")");
             final String action = intent.getAction();
             if (action!=null){
                 if (action.equals(Constant.ACTION_START_POTHOLE_SERVICE)){
@@ -108,21 +112,6 @@ public class PotholeRecognizerService extends Service implements SensorEventList
         Log.d(TAG, "stopPotholeRecognizerService: service stopped");
     }
 
-   /* @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterSensor();
-    }*/
-
-
-  /*  @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        stopForeground(true);
-        unregisterSensor();
-        stopSelf();
-    }*/
-
     private void unregisterSensor() {
         Log.d(TAG, "Service stopped!");
         sensorManager.unregisterListener(this, accelerometer);
@@ -138,7 +127,7 @@ public class PotholeRecognizerService extends Service implements SensorEventList
 
         double deltaZ = Math.abs(getVerticalAccel());
 
-        if (deltaZ > Constant.DEFAULT_ACCELERATION_THRESHOLD) {
+        if (deltaZ > mThreshold) {
 
             /*
             This block checks if at least MIN_SEC_FOR_ANOTHER_EVENT_REGISTRATION
