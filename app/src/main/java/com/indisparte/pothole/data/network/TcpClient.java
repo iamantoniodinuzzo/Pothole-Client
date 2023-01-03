@@ -30,7 +30,7 @@ import java.util.Set;
 public class TcpClient {
     private static final String TAG = TcpClient.class.getSimpleName();
     public static final int SO_TIMEOUT = 6000;
-    private static TcpClient instance = null;
+    private static  TcpClient instance = null;
     private static final String HOST_NAME = BuildConfig.SERVER_ADDRESS;
     private static final int HOST_PORT = Integer.parseInt(BuildConfig.SERVER_PORT);
     private Socket mSocket;

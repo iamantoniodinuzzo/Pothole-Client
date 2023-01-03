@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
 
 import com.indisparte.pothole.data.network.PotholeRepository;
 import com.indisparte.pothole.databinding.ActivityMainBinding;
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private PermissionUtil permissionUtil;
     private ActivityMainBinding binding;
     private SharedViewModel sharedViewModel;
-    private NavController navController;
     private SharedPreferences preferences;
     private long pressedTime;
     @Inject
