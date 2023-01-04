@@ -139,9 +139,10 @@ public class LoginFragment extends Fragment {
 
     }
 
-    private void login() {
+    private void login() {// TODO: 27/12/2022 move this code to viewmodel
         if (mPotholeRepository != null) {
             if (username != null) {
+
                 // ProgressDialog loginProgressDialog = AlertUtil.createProgressDialog(requireContext(), getString(R.string.dialog_progress_login_msg));
                 AsyncTask.execute(() -> {
                     try {
