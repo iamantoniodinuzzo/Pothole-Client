@@ -43,7 +43,7 @@ public class ServiceUtil {
      * Start a specific service
      *
      * @param service The service class
-     * @param action  An action, can be null
+     * @param action  An action
      * @param <T>     Must extends {@link Service}
      */
     public static <T extends Service> void startService(@NonNull Activity activity,@NonNull Class<T> service, @NonNull String action, double mThreshold) {
