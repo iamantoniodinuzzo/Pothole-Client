@@ -10,17 +10,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/username_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:text="Welcome to Potholes aplication\nThis app need location permissions, please accept!"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@id/username_layout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:lottie_url="https://assets4.lottiefiles.com/packages/lf20_dbkbyyfx.json"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_layout"
@@ -49,9 +49,9 @@
 
         <Button
             android:id="@+id/login_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="20dp"
             android:imeOptions="actionGo"
             android:text="Login"
