@@ -10,17 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:text="Welcome to Potholes aplication\nThis app need location permissions, please accept!"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@id/username_layout"
-            app:layout_constraintEnd_toEndOf="parent"
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/username_layout"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_height="wrap_content"
+            app:lottie_rawRes="@raw/start_animation"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_layout"
@@ -40,21 +41,21 @@
                 android:id="@+id/username_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
+                android:hint="@string/text_input_username"
                 android:inputType="text"
                 android:maxLength="50"
                 android:maxLines="1"
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/login_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="20dp"
             android:imeOptions="actionGo"
-            android:text="Login"
+            android:text="@string/text_login_btn"
             android:textAllCaps="false"
             android:textSize="18sp"
             android:background="@drawable/custom_button"

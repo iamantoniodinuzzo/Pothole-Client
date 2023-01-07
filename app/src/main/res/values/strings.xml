@@ -5,6 +5,12 @@
     <string name="dialog_error_connection_server_pos_btn">Retry</string>
     <string name="dialog_error_connection_server_neg_btn">Close</string>
     <string name="dialog_progress_login_msg">Try to login</string>
+    <string name="text_input_username">Username</string>
+    <string name="text_login_btn">Login</string>
+    <string name="tracking_my_position">Tracking my position</string>
+    <string name="start_tracking">Start tracking</string>
+    <string name="stop_tracking">Stop tracking</string>
+    <string name="get_my_location">Get my location</string>
     <!--    Zoom map type -->
     <string-array name="zoom_array">
         <item>Building</item>

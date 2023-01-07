@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -104,12 +105,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     protected PotholeRepository mPotholeRepository;
     private double mThreshold;
     private HashSet<Marker> potholeMarkers;
+    private MediaPlayer marioSound;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: init sharedViewModel, myReceiver and preferences");
+        marioSound = MediaPlayer.create(requireContext(), R.raw.mario_sound_yahoo);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         mLocationReceiver = new LocationReceiver();
         mPotholeReceiver = new PotholeReceiver();
@@ -147,36 +150,42 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         setupToolbar(view);
         loadSettings();
 
-        sharedViewModel.getAppMode().observe(getViewLifecycleOwner(), mode -> binding.setMode(mode));
+        sharedViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), this::updateMyTrackerMarker);
+        
+        sharedViewModel.getAppMode().observe(getViewLifecycleOwner(), mode -> {
+            binding.setMode(mode);
+            if (mode == Mode.LOCATION) {
+                removeCarMarker();
+            } else {
+                removeLocationMarker();
+            }
+        });
 
         sharedViewModel.getIsPermissionGranted().observe(getViewLifecycleOwner(), areGranted -> {
             binding.setPermissions(areGranted);
-            if (areGranted && !isThisServiceRunning(requireActivity(),LocationTrackingService.class)) {
+            if (areGranted && !isThisServiceRunning(requireActivity(), LocationTrackingService.class)) {
                 getLocation();
             }
         });
 
-        sharedViewModel.getAppMode().observe(getViewLifecycleOwner(), mode -> binding.setMode(mode));
-
-
-        sharedViewModel.getCurrentLocation().observe(getViewLifecycleOwner(), this::updateMyTrackerMarker);
 
         binding.locateMe.setOnClickListener(locateMe -> {
-            if (!isThisServiceRunning(requireActivity(),LocationTrackingService.class)) getLocation();
+            if (!isThisServiceRunning(requireActivity(), LocationTrackingService.class))
+                getLocation();
         });
 
         binding.trackingBtn.setOnCheckedChangeListener((compoundButton, tracking) -> {
             if (tracking) {
                 Log.d(TAG, "onViewCreated: start tracking mode");
                 sharedViewModel.setAppMode(Mode.TRACKING);
-                startService(requireActivity(),LocationTrackingService.class, ACTION_START_LOCATION_SERVICE, mThreshold);
-                startService(requireActivity(),PotholeRecognizerService.class, ACTION_START_POTHOLE_SERVICE,mThreshold);
+                startService(requireActivity(), LocationTrackingService.class, ACTION_START_LOCATION_SERVICE, mThreshold);
+                startService(requireActivity(), PotholeRecognizerService.class, ACTION_START_POTHOLE_SERVICE, mThreshold);
                 removeLocationMarker();
             } else {
                 Log.d(TAG, "onViewCreated: stop tracking mode");
                 sharedViewModel.setAppMode(Mode.LOCATION);
-                stopService(requireActivity(),LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
-                stopService(requireActivity(),PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);
+                stopService(requireActivity(), LocationTrackingService.class, ACTION_STOP_LOCATION_SERVICE);
+                stopService(requireActivity(), PotholeRecognizerService.class, ACTION_STOP_POTHOLE_SERVICE);
                 removeCarMarker();
                 getLocation();
             }
@@ -448,7 +457,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
             Location location = sharedViewModel.getLastLocation();
             if (location != null && deltaZ != 0) {
-                Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();// TODO: 24/12/2022 make a sound
+                Toast.makeText(context, "Pothole found!", Toast.LENGTH_SHORT).show();
+                marioSound.start();
                 Pothole newPothole = new Pothole(UserPreferenceManager.getUserName(), location.getLatitude(), location.getLongitude(), deltaZ);
                 Log.d(TAG, "onReceive: Pothole (" + newPothole + ") found ");
                 sendNewPotholeToServer(newPothole);
