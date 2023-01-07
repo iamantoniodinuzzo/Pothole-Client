@@ -18,7 +18,7 @@
             app:layout_constraintBottom_toTopOf="@id/username_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:lottie_url="https://assets4.lottiefiles.com/packages/lf20_dbkbyyfx.json"
+            app:lottie_rawRes="@raw/start_animation"
             app:lottie_autoPlay="true"
             app:lottie_loop="false"/>
 
@@ -58,7 +58,7 @@
             android:textAllCaps="false"
             android:textSize="18sp"
             android:background="@drawable/custom_button"
-            android:enabled="false"
+            android:enabled="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
