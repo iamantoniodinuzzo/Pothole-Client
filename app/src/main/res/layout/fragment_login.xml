@@ -17,6 +17,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/username_layout"
             android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
             android:layout_height="wrap_content"
             app:lottie_rawRes="@raw/start_animation"
             app:lottie_autoPlay="true"
@@ -40,25 +41,25 @@
                 android:id="@+id/username_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Username"
+                android:hint="@string/text_input_username"
                 android:inputType="text"
                 android:maxLength="50"
                 android:maxLines="1"
                 android:textSize="18sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/login_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="20dp"
             android:imeOptions="actionGo"
-            android:text="Login"
+            android:text="@string/text_login_btn"
             android:textAllCaps="false"
             android:textSize="18sp"
             android:background="@drawable/custom_button"
-            android:enabled="true"
+            android:enabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
