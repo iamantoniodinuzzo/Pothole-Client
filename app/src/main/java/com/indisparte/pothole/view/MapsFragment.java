@@ -28,7 +28,6 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -106,14 +105,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     protected PotholeRepository mPotholeRepository;
     private double mThreshold;
     private HashSet<Marker> potholeMarkers;
-    private final MediaPlayer marioSound ;
+    private MediaPlayer marioSound ;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: init sharedViewModel, myReceiver and preferences");
-        marioSound = MediaPlayer.create(this,R.raw.);
+        marioSound = MediaPlayer.create(requireContext(),R.raw.mario_sound_yahoo);
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         mLocationReceiver = new LocationReceiver();
         mPotholeReceiver = new PotholeReceiver();
