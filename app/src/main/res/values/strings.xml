@@ -11,6 +11,8 @@
     <string name="start_tracking">Start tracking</string>
     <string name="stop_tracking">Stop tracking</string>
     <string name="get_my_location">Get my location</string>
+    <string name="location_tracking_service_title">Tracking service</string>
+    <string name="location_tracking_service_text">Stiamo monitorando la tua posizione in attesa di buche</string>
     <!--    Zoom map type -->
     <string-array name="zoom_array">
         <item>Building</item>
