@@ -1,7 +1,7 @@
 package com.indisparte.pothole.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.indisparte.pothole.databinding.FragmentMapBinding
 import com.indisparte.pothole.util.LocationPermissionHandler
@@ -41,15 +42,7 @@ class MapFragment : Fragment() {
             LocationServices.getFusedLocationProviderClient(requireContext())
         setupMapView(savedInstanceState)
         setupButton()
-        getCurrentLocation()
         return binding.root
-    }
-
-    private fun getCurrentLocation() {
-        if (locationPermissionHandler.hasLocationPermission())
-// TODO: get current location
-        else
-            locationPermissionHandler.requestLocationPermission(requireActivity())
     }
 
 
@@ -59,9 +52,9 @@ class MapFragment : Fragment() {
         mapView.getMapAsync { googleMap ->
             map = googleMap
             map.uiSettings.isZoomControlsEnabled = true
+            enableMyLocation()
         }
         mapViewModel.currentLocation.observe(viewLifecycleOwner) { latLng ->
-            Log.d("TAG", "setupMapView: $latLng")
             map.clear()
             map.addMarker(
                 MarkerOptions()
@@ -70,6 +63,20 @@ class MapFragment : Fragment() {
             )
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocation() {
+        if (locationPermissionHandler.hasLocationPermission()) {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    val latLng = LatLng(it.latitude, it.longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                    map.addMarker(MarkerOptions().position(latLng).title("You are here!"))
+                }
+            }
+        } else
+            locationPermissionHandler.requestLocationPermission(requireActivity())
     }
 
     private fun setupButton() {
