@@ -35,6 +35,8 @@ class MapViewModel
         locationRepository.getLocationUpdates(locationCallback)
     }
 
+
+
     fun stopLocationUpdates() {
         locationRepository.removeLocationUpdates(locationCallback)
     }

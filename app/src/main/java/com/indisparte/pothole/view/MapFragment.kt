@@ -1,6 +1,7 @@
 package com.indisparte.pothole.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,15 +39,19 @@ class MapFragment : Fragment() {
         locationPermissionHandler = LocationPermissionHandler(requireContext())
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
+        setupMapView(savedInstanceState)
+        setupButton()
+        getCurrentLocation()
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setupMapView(savedInstanceState)
-        setupButton()
+    private fun getCurrentLocation() {
+        if (locationPermissionHandler.hasLocationPermission())
+// TODO: get current location
+        else
+            locationPermissionHandler.requestLocationPermission(requireActivity())
     }
+
 
     private fun setupMapView(savedInstanceState: Bundle?) {
         mapView = binding.mapView
@@ -54,6 +59,16 @@ class MapFragment : Fragment() {
         mapView.getMapAsync { googleMap ->
             map = googleMap
             map.uiSettings.isZoomControlsEnabled = true
+        }
+        mapViewModel.currentLocation.observe(viewLifecycleOwner) { latLng ->
+            Log.d("TAG", "setupMapView: $latLng")
+            map.clear()
+            map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title("Current location")
+            )
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
         }
     }
 
@@ -74,15 +89,7 @@ class MapFragment : Fragment() {
 
     private fun startTracking() {
         mapViewModel.startLocationUpdates()
-        mapViewModel.currentLocation.observe(viewLifecycleOwner) { latLng ->
-            map.clear()
-            map.addMarker(
-                MarkerOptions()
-                    .position(latLng)
-                    .title("Current location")
-            )
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-        }
+
     }
 
 

@@ -32,6 +32,7 @@ constructor(
         )
     }
 
+
     fun removeLocationUpdates(locationCallback: LocationCallback) {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
