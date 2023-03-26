@@ -18,7 +18,7 @@ class PotholeRecognizerService : Service(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
     private lateinit var gravity: Sensor
-    private var lastEventTime :Long = 0L
+    private var lastEventTime: Long = 0L
     private var threshold = 0.0
     private var xAccel = 0.0
     private var yAccel = 0.0
@@ -27,7 +27,7 @@ class PotholeRecognizerService : Service(), SensorEventListener {
     private var yGravity = 0.0
     private var zGravity = 0.0
 
-    override fun onBind(intent: Intent): IBinder? =null
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
@@ -35,7 +35,7 @@ class PotholeRecognizerService : Service(), SensorEventListener {
             return START_NOT_STICKY
         }
 
-        threshold = intent.getDoubleExtra("threshold", Constant.DEFAULT_ACCELERATION_THRESHOLD)
+        threshold = intent.getDoubleExtra("threshold", DEFAULT_ACCELERATION_THRESHOLD)
         Log.d(TAG, "onStartCommand: received threshold ($threshold)")
 
         when (intent.action) {
@@ -54,8 +54,10 @@ class PotholeRecognizerService : Service(), SensorEventListener {
     private fun initSensors() {
         Log.d(TAG, "initSensors: Initializing sensors")
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) ?: error("Acceleration sensor not found")
-        gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) ?: error("Gravity sensor not found")
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+            ?: error("Acceleration sensor not found")
+        gravity =
+            sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) ?: error("Gravity sensor not found")
     }
 
     private fun startPotholeRecognizerService() {
@@ -115,15 +117,15 @@ class PotholeRecognizerService : Service(), SensorEventListener {
     }
 
     private fun getAxisGravity(event: SensorEvent) {
-            xGravity = event.values[0].toDouble()
-            yGravity = event.values[1].toDouble()
-            zGravity = event.values[2].toDouble()
+        xGravity = event.values[0].toDouble()
+        yGravity = event.values[1].toDouble()
+        zGravity = event.values[2].toDouble()
     }
 
     private fun getAxisAcceleration(event: SensorEvent) {
-            xAccel = event.values[0].toDouble()
-            yAccel = event.values[1].toDouble()
-            zAccel = event.values[2].toDouble()
+        xAccel = event.values[0].toDouble()
+        yAccel = event.values[1].toDouble()
+        zAccel = event.values[2].toDouble()
 
     }
 
@@ -132,6 +134,7 @@ class PotholeRecognizerService : Service(), SensorEventListener {
     companion object {
         private const val MIN_TIME_BETWEEN_EVENTS_MILLIS = 2 // seconds
         private const val GRAVITY = 9.18
+        private const val DEFAULT_ACCELERATION_THRESHOLD = 2.00
         private val TAG = PotholeRecognizerService::class.java.simpleName
     }
 }
