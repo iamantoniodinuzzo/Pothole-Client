@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/mapsFragment">
 
 
     <fragment
@@ -19,16 +19,5 @@
         android:id="@+id/settingsFragment"
         android:name="com.indisparte.pothole.view.SettingsFragment"
         android:label="Settings" />
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.indisparte.pothole.view.LoginFragment"
-        android:label="Login"
-        tools:layout="@layout/fragment_login" >
-        <action
-            android:id="@+id/action_loginFragment_to_mapsFragment"
-            app:destination="@id/mapsFragment"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/nav_graph.xml"
-            app:popUpToInclusive="true"/>
-    </fragment>
+
 </navigation>

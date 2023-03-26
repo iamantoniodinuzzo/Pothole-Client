@@ -17,7 +17,6 @@ public class Constant {
     public static final int LOCATION_INTERVAL_MILLIS = 4000;
     public static final int FASTEST_INTERVAL_MILLIS = 200;
     public static final int LOCATION_SERVICE_ID = 175;
-    public static final int POTHOLE_SERVICE_ID = 178;
     public static final double DEFAULT_ACCELERATION_THRESHOLD = 15.000;
     public static final String ACTION_START_LOCATION_SERVICE = "startLocationTrackingService";
     public static final String ACTION_STOP_LOCATION_SERVICE = "stopLocationTrackingService";
